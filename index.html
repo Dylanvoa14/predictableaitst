@@ -416,6 +416,59 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 }
 .btn-edit-toggle:hover{background:rgba(192,122,0,0.15)}
 
+/* ─── SCRAPE BUTTON ─── */
+.url-row{display:flex;gap:8px;align-items:flex-start}
+.url-row input{flex:1}
+.btn-scrape{
+  padding:10px 16px;
+  background:var(--blue-dark);color:#fff;
+  border:none;border-radius:var(--r);
+  font-size:13px;font-weight:500;font-family:'Inter',sans-serif;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:opacity 0.15s;
+  display:flex;align-items:center;gap:7px;
+  box-shadow:0 1px 4px rgba(15,30,60,0.2);
+}
+.btn-scrape:hover{opacity:0.88}
+.btn-scrape:disabled{opacity:0.45;cursor:not-allowed}
+.btn-scrape svg{width:14px;height:14px;flex-shrink:0}
+.scrape-spinner{width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none}
+.btn-scrape.loading .scrape-spinner{display:block}
+.btn-scrape.loading .scrape-icon{display:none}
+.scrape-status{
+  margin-top:8px;padding:10px 14px;
+  border-radius:var(--r);font-size:12px;line-height:1.6;
+  display:none;
+}
+.scrape-status.loading{
+  display:flex;align-items:center;gap:8px;
+  background:var(--blue-pale);border:1px solid var(--blue-pale2);color:var(--blue);
+}
+.scrape-status.success{
+  display:block;
+  background:var(--success-bg);border:1px solid rgba(13,158,110,0.2);color:var(--success);
+}
+.scrape-status.error{
+  display:block;
+  background:var(--danger-bg);border:1px solid rgba(217,48,64,0.2);color:var(--danger);
+}
+.scrape-fields-applied{
+  margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;
+}
+.scrape-badge{
+  font-size:11px;padding:2px 8px;border-radius:20px;
+  background:rgba(13,158,110,0.12);color:var(--success);
+  border:1px solid rgba(13,158,110,0.2);font-weight:500;
+}
+.scrape-progress-steps{
+  display:flex;flex-direction:column;gap:3px;
+  font-size:12px;color:var(--blue);
+}
+.scrape-step{display:flex;align-items:center;gap:6px;opacity:0.5;transition:opacity 0.3s}
+.scrape-step.active{opacity:1;font-weight:500}
+.scrape-step.done{opacity:0.7}
+.scrape-step-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0}
+
 /* ─── DIVIDER ─── */
 .divider{height:1px;background:var(--border);margin:1.5rem 0}
 
@@ -481,9 +534,17 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="card">
       <div class="field">
         <label>Sitio web de la empresa</label>
-        <div class="hint">URL principal. Ej: https://tuempresa.com</div>
-        <input type="url" id="f-url" placeholder="https://" oninput="updateProgress()"/>
+        <div class="hint">Ingresa la URL y presiona "Analizar empresa" para autocompletar el formulario con datos públicos</div>
+        <div class="url-row">
+          <input type="url" id="f-url" placeholder="https://" oninput="updateProgress()"/>
+          <button class="btn-scrape" id="btn-scrape" onclick="scrapeEmpresa()">
+            <svg class="scrape-icon" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 4v3l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 2l10 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0"/><path d="M4.5 1.5C2.5 2.5 1 4.5 1 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 1.5C11.5 2.5 13 4.5 13 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <div class="scrape-spinner"></div>
+            Analizar empresa
+          </button>
+        </div>
         <div class="err" id="e-url">Ingresa una URL válida (debe comenzar con https://)</div>
+        <div class="scrape-status" id="scrape-status"></div>
       </div>
 
       <div class="field">
@@ -1085,6 +1146,264 @@ function applySuggestion(fieldId, storeKey, campoKey, matrizId) {
     syncMatriz();
     const content = document.getElementById(`afc-${campoKey}-${matrizId}`);
     if (content) content.innerHTML = '<span style="font-size:12px;color:var(--success)">✓ Versión aplicada. Puedes seguir editando.</span>';
+  }
+}
+
+/* ── SCRAPING CON IA + WEB SEARCH ── */
+async function scrapeEmpresa() {
+  const url = document.getElementById('f-url').value.trim();
+  if (!url || !url.startsWith('http')) {
+    document.getElementById('e-url').style.display = 'block';
+    return;
+  }
+  document.getElementById('e-url').style.display = 'none';
+
+  const btn = document.getElementById('btn-scrape');
+  const status = document.getElementById('scrape-status');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const steps = [
+    'Buscando información pública de la empresa...',
+    'Analizando producto y propuesta de valor...',
+    'Identificando mercados y competidores...',
+    'Completando el formulario...'
+  ];
+
+  status.className = 'scrape-status loading';
+  status.innerHTML = `<div class="scrape-spinner" style="display:block;border-color:rgba(43,92,200,0.3);border-top-color:var(--blue)"></div><div class="scrape-progress-steps">${steps.map((s,i) => `<div class="scrape-step${i===0?' active':''}" id="ss-${i}"><div class="scrape-step-dot"></div>${s}</div>`).join('')}</div>`;
+
+  const stepInterval = steps.map((_, i) =>
+    setTimeout(() => {
+      document.querySelectorAll('.scrape-step').forEach((el, j) => {
+        el.classList.toggle('active', j === i);
+        if (j < i) el.classList.add('done');
+      });
+    }, i * 2200)
+  );
+
+  const dominio = url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0];
+
+  const prompt = `Eres un analista de inteligencia comercial B2B. Tu tarea es investigar la empresa con el sitio web "${url}" usando búsqueda web y extraer información estructurada para completar un formulario de marketing.
+
+Busca en internet toda la información pública disponible sobre esta empresa: su sitio web, LinkedIn, Crunchbase, notas de prensa, reseñas, etc.
+
+Extrae y devuelve SOLO en JSON sin backticks ni markdown, con este formato exacto:
+{
+  "nombre_empresa": "nombre comercial de la empresa",
+  "productos": ["producto o servicio 1", "producto o servicio 2"],
+  "paises": ["país o región 1", "país o región 2"],
+  "descripcion_vendio": "descripción de clientes actuales o casos de uso conocidos, o null si no se encuentra",
+  "canales": ["canal de venta identificado 1", "canal 2"],
+  "pricing": "Suscripción | Por proyecto | Por producto | Híbrido | null",
+  "herramientas_prosp": ["herramienta de prospección si se menciona"],
+  "problema_principal": "el problema central que resuelve para sus clientes, en 2-3 oraciones desde la perspectiva del cliente",
+  "resultado_principal": "el resultado o beneficio principal que obtiene el cliente, con métricas si las hay",
+  "competidores": ["competidor 1", "competidor 2", "competidor 3"],
+  "confianza": "alta | media | baja",
+  "campos_encontrados": ["lista de campos donde encontraste info confiable"]
+}
+
+Si no encuentras información confiable para un campo, usa null. No inventes datos. El campo "confianza" refleja qué tan completa y verificable es la información encontrada en total.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    stepInterval.forEach(clearTimeout);
+
+    const data = await res.json();
+
+    // Extraer el bloque de texto final (puede venir después de tool_use)
+    const textBlock = data.content.filter(b => b.type === 'text').pop();
+    if (!textBlock) throw new Error('Sin respuesta de texto');
+
+    const raw = textBlock.text.trim().replace(/```json|```/g, '').trim();
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No se pudo parsear JSON');
+
+    const info = JSON.parse(jsonMatch[0]);
+    const aplicados = [];
+
+    // Productos
+    if (info.productos && info.productos.length > 0) {
+      const wrap = document.getElementById('productos-wrap');
+      wrap.innerHTML = '';
+      info.productos.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'multi-item';
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'producto-input';
+        inp.value = p;
+        inp.addEventListener('input', updateProgress);
+        if (i > 0) {
+          const btn2 = document.createElement('button');
+          btn2.className = 'btn-remove';
+          btn2.innerHTML = '×';
+          btn2.type = 'button';
+          btn2.addEventListener('click', () => { div.remove(); updateProgress(); });
+          div.appendChild(inp);
+          div.appendChild(btn2);
+        } else {
+          div.appendChild(inp);
+        }
+        wrap.appendChild(div);
+      });
+      aplicados.push('Productos');
+    }
+
+    // Países
+    if (info.paises && info.paises.length > 0) {
+      const wrap = document.getElementById('paises-wrap');
+      wrap.innerHTML = '';
+      info.paises.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'multi-item';
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'pais-input';
+        inp.value = p;
+        inp.addEventListener('input', updateProgress);
+        if (i > 0) {
+          const btn2 = document.createElement('button');
+          btn2.className = 'btn-remove';
+          btn2.innerHTML = '×';
+          btn2.type = 'button';
+          btn2.addEventListener('click', () => { div.remove(); updateProgress(); });
+          div.appendChild(inp);
+          div.appendChild(btn2);
+        } else {
+          div.appendChild(inp);
+        }
+        wrap.appendChild(div);
+      });
+      aplicados.push('Países');
+    }
+
+    // ¿Ya vendieron?
+    if (info.descripcion_vendio) {
+      document.getElementById('f-vendio').value = info.descripcion_vendio;
+      aplicados.push('Clientes actuales');
+    }
+
+    // Canales — activar chips que coincidan
+    if (info.canales && info.canales.length > 0) {
+      const chipMap = {
+        'outbound': 'Outbound directo',
+        'inbound': 'Inbound / marketing',
+        'referidos': 'Referidos',
+        'reseller': 'Canales / resellers',
+        'canal': 'Canales / resellers',
+        'social': 'Redes sociales',
+        'evento': 'Eventos y ferias',
+        'partner': 'Partnerships',
+        'marketplace': 'Marketplace'
+      };
+      const canalesNorm = info.canales.map(c => c.toLowerCase());
+      document.querySelectorAll('.canal-chip').forEach(chip => {
+        const chipVal = chip.dataset.v.toLowerCase();
+        const match = canalesNorm.some(c =>
+          Object.entries(chipMap).some(([k, v]) => c.includes(k) && v.toLowerCase() === chipVal)
+        );
+        if (match) chip.classList.add('sel');
+      });
+      syncCanales();
+      aplicados.push('Canales de venta');
+    }
+
+    // Pricing
+    if (info.pricing && info.pricing !== 'null') {
+      document.querySelectorAll('.pc').forEach(pc => {
+        if (pc.dataset.v === info.pricing) {
+          selPricing(pc);
+        }
+      });
+      aplicados.push('Pricing');
+    }
+
+    // Herramientas de prospección
+    if (info.herramientas_prosp && info.herramientas_prosp.length > 0) {
+      const twProsp = document.getElementById('tw-prosp');
+      const tiProsp = document.getElementById('ti-prosp');
+      info.herramientas_prosp.forEach(h => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.textContent = h;
+        const btn2 = document.createElement('button');
+        btn2.textContent = '×';
+        btn2.type = 'button';
+        btn2.addEventListener('click', e => { e.stopPropagation(); tag.remove(); updateProgress(); });
+        tag.appendChild(btn2);
+        twProsp.insertBefore(tag, tiProsp);
+      });
+      document.getElementById('f-prosp').value = info.herramientas_prosp.join(', ');
+      aplicados.push('Herramientas');
+    }
+
+    // Problema
+    if (info.problema_principal) {
+      document.getElementById('f-problema').value = info.problema_principal;
+      countChars('f-problema', 'cc-prob');
+      aplicados.push('Problema raíz');
+    }
+
+    // Resultado
+    if (info.resultado_principal) {
+      document.getElementById('f-resultado').value = info.resultado_principal;
+      countChars('f-resultado', 'cc-res');
+      aplicados.push('Resultado esperado');
+    }
+
+    // Competidores
+    if (info.competidores && info.competidores.length > 0) {
+      const twComp = document.getElementById('tw-comp');
+      const tiComp = document.getElementById('ti-comp');
+      info.competidores.forEach(c => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.textContent = c;
+        const btn2 = document.createElement('button');
+        btn2.textContent = '×';
+        btn2.type = 'button';
+        btn2.addEventListener('click', e => { e.stopPropagation(); tag.remove(); });
+        tag.appendChild(btn2);
+        twComp.insertBefore(tag, tiComp);
+      });
+      document.getElementById('f-comp').value = info.competidores.join(', ');
+      aplicados.push('Competidores');
+    }
+
+    updateProgress();
+
+    const confianzaColor = { alta: 'var(--success)', media: 'var(--warning)', baja: 'var(--danger)' };
+    const confianzaLabel = { alta: 'Alta confianza', media: 'Confianza media', baja: 'Baja confianza' };
+    const conf = info.confianza || 'media';
+
+    status.className = 'scrape-status success';
+    status.innerHTML = `
+      <strong style="display:block;margin-bottom:6px">✓ ${aplicados.length} campos completados automáticamente</strong>
+      <div class="scrape-fields-applied">${aplicados.map(f => `<span class="scrape-badge">${f}</span>`).join('')}</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">
+        <span style="color:${confianzaColor[conf]};font-weight:500">${confianzaLabel[conf]}</span> — Revisa y corrige los campos si algo no es exacto. Los datos vienen de fuentes públicas.
+      </div>
+    `;
+
+  } catch(e) {
+    stepInterval.forEach(clearTimeout);
+    status.className = 'scrape-status error';
+    status.innerHTML = `No se pudo analizar la empresa automáticamente. Puede que el sitio no tenga suficiente información pública. Completa los campos manualmente.`;
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
   }
 }
 
