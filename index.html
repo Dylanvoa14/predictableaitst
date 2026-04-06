@@ -304,23 +304,67 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .tag-r{background:var(--success-bg);color:var(--success)}
 .tag-sol{background:#F0F0FF;color:#5050C0}
 .m-field textarea{min-height:75px;font-size:13px}
-.ai-fill-row{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 0 4px;
-  border-top:1px solid var(--border);
+.ai-feedback-panel{
   margin-top:12px;
+  border-top:1px solid var(--border);
+  padding-top:12px;
+  display:none;
 }
-.ai-fill-hint{font-size:12px;color:var(--subtle);flex:1}
-.btn-ai-fill{
-  padding:7px 14px;background:var(--blue-pale);border:1px solid var(--blue-pale2);
-  border-radius:var(--r);font-size:12px;font-weight:500;color:var(--blue);
+.ai-feedback-panel.visible{display:block}
+.ai-feedback-hdr{
+  display:flex;align-items:center;gap:7px;
+  margin-bottom:8px;
+}
+.ai-feedback-hdr-icon{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--blue-pale);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.ai-feedback-hdr-icon svg{width:10px;height:10px}
+.ai-feedback-label{font-size:12px;font-weight:500;color:var(--blue)}
+.ai-thinking{font-size:12px;color:var(--subtle);font-style:italic;display:none}
+.ai-thinking.visible{display:block}
+.ai-feedback-score{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:8px;
+}
+.score-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease,background 0.3s}
+.score-label{font-size:11px;font-weight:600;min-width:28px;text-align:right}
+.score-low .score-bar-fill{background:var(--danger)}
+.score-low .score-label{color:var(--danger)}
+.score-mid .score-bar-fill{background:var(--warning)}
+.score-mid .score-label{color:var(--warning)}
+.score-high .score-bar-fill{background:var(--success)}
+.score-high .score-label{color:var(--success)}
+.ai-feedback-body{font-size:12px;color:var(--muted);line-height:1.65}
+.ai-feedback-body strong{color:var(--text);font-weight:500}
+.ai-feedback-suggestion{
+  margin-top:8px;padding:10px 12px;
+  background:var(--blue-pale);border:1px solid var(--blue-pale2);
+  border-radius:var(--r);font-size:12px;color:var(--blue-mid);
+  line-height:1.6;
+}
+.ai-feedback-suggestion-label{font-size:11px;font-weight:600;color:var(--blue);margin-bottom:4px;letter-spacing:0.3px}
+.btn-apply-suggestion{
+  margin-top:8px;padding:5px 12px;
+  background:var(--white);border:1px solid var(--blue-pale2);
+  border-radius:var(--r);font-size:11px;font-weight:500;color:var(--blue);
   cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;
-  display:flex;align-items:center;gap:6px;
 }
-.btn-ai-fill:hover{background:var(--blue-pale2)}
-.btn-ai-fill:disabled{opacity:0.5;cursor:not-allowed}
-.ai-fill-spinner{width:11px;height:11px;border:1.5px solid rgba(43,92,200,0.3);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;display:none}
-.btn-ai-fill.loading .ai-fill-spinner{display:block}
+.btn-apply-suggestion:hover{background:var(--blue-pale2)}
+.ai-analyzing{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--subtle);
+}
+.ai-analyzing-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--blue);
+  animation:blink 1.2s ease-in-out infinite;
+}
+.ai-analyzing-dot:nth-child(2){animation-delay:0.2s}
+.ai-analyzing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,100%{opacity:0.3}50%{opacity:1}}
 
 /* ─── ERR / CHAR ─── */
 .err{font-size:12px;color:var(--danger);margin-top:5px;display:none}
@@ -608,13 +652,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="matriz-header">
         <div>
           <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">Roles objetivo</div>
-          <div style="font-size:12px;color:var(--subtle)">Selecciona los roles a los que vendes y completa la matriz. La IA puede ayudarte a completarla.</div>
+          <div style="font-size:12px;color:var(--subtle)">Selecciona los roles a los que vendes y completa cada campo. La IA revisa lo que escribes y te da feedback en tiempo real.</div>
         </div>
-        <button class="ai-btn" id="btn-ai-all" onclick="aiCompletarTodo()">
-          <svg class="ai-icon" viewBox="0 0 14 14" fill="none"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-          <div class="ai-spinner"></div>
-          Completar todo con IA
-        </button>
       </div>
       <div class="rol-selector" id="rol-selector">
         <div class="rol-chip" onclick="toggleRol(this)" data-rol="Gerente General / CEO">CEO / Gerente General</div>
@@ -668,6 +707,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <script>
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzXzlEPHXFNHty30D9rBvnbHw_gfh3NtwhSiZsS4KMMxJfLzoeuo_jibJnIbLtRBer6Ng/exec';
+const aiDebounceTimers = {};
+const aiLastText = {};
 
 /* ── MULTI ITEM (productos / países) ── */
 function addMultiItem(wrapId, cls, placeholder) {
@@ -801,46 +842,64 @@ function sanitizeId(str) {
   return str.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
+const aiDebounceTimers = {};
+const aiLastText = {};
+
 function crearMatrizCard(rol) {
   const container = document.getElementById('matriz-cards');
   const id = sanitizeId(rol);
   const card = document.createElement('div');
   card.className = 'matriz-card';
   card.id = 'mc-' + id;
+
+  const campos = [
+    { key:'p', label:'Problema', tag:'tag-p', tagLabel:'Problema', placeholder:'¿Cuál es el principal problema que enfrenta este rol? Descríbelo desde su perspectiva, no desde tu producto.' },
+    { key:'s', label:'Síntomas', tag:'tag-s', tagLabel:'Síntomas', placeholder:'¿Qué señales visibles o situaciones concretas experimenta este rol que delatan el problema?' },
+    { key:'i', label:'Impacto negativo', tag:'tag-i', tagLabel:'Impacto', placeholder:'¿Qué consecuencias tiene si no lo resuelve? Financiero, operativo, humano.' },
+    { key:'so', label:'Solución propuesta', tag:'tag-sol', tagLabel:'Solución', placeholder:'¿Cómo resuelve específicamente tu producto o servicio este problema para este rol?' },
+  ];
+
+  const camposHTML = campos.map(c => `
+    <div class="m-field field">
+      <label>${c.label} <span class="${c.tag}">${c.tagLabel}</span></label>
+      <textarea id="m${c.key}-${id}" placeholder="${c.placeholder}" oninput="syncMatriz();scheduleAiFeedback('${id}','${c.key}',this.value,'${rol}')"></textarea>
+      <div class="ai-feedback-panel" id="afp-${c.key}-${id}">
+        <div class="ai-feedback-hdr">
+          <div class="ai-feedback-hdr-icon">
+            <svg viewBox="0 0 10 10" fill="none"><path d="M5 1L6 3.5H9L6.5 5.5L7.5 8L5 6.5L2.5 8L3.5 5.5L1 3.5H4L5 1Z" stroke="var(--blue)" stroke-width="1" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="ai-feedback-label">Asistente de matriz</span>
+          <div class="ai-analyzing" id="afa-${c.key}-${id}" style="display:none">
+            <div class="ai-analyzing-dot"></div><div class="ai-analyzing-dot"></div><div class="ai-analyzing-dot"></div>
+          </div>
+        </div>
+        <div id="afc-${c.key}-${id}"></div>
+      </div>
+    </div>
+  `).join('');
+
   card.innerHTML = `
     <div class="matriz-rol-hdr" onclick="toggleMatrizCard('${id}')">
       <span class="matriz-rol-name">${rol}</span>
       <span class="chevron open" id="chv-${id}">▾</span>
     </div>
     <div class="matriz-rol-body open" id="mb-${id}">
-      <div class="matriz-cols">
-        <div class="m-field field">
-          <label>Problema <span class="tag-p">Problema</span></label>
-          <textarea id="mp-${id}" placeholder="¿Cuál es el principal problema que enfrenta este rol?" oninput="syncMatriz()"></textarea>
-        </div>
-        <div class="m-field field">
-          <label>Síntomas <span class="tag-s">Síntomas</span></label>
-          <textarea id="ms-${id}" placeholder="¿Qué señales visibles tiene el problema?" oninput="syncMatriz()"></textarea>
-        </div>
-        <div class="m-field field">
-          <label>Impacto negativo <span class="tag-i">Impacto</span></label>
-          <textarea id="mi-${id}" placeholder="¿Qué consecuencias tiene si no se resuelve?" oninput="syncMatriz()"></textarea>
-        </div>
-        <div class="m-field field">
-          <label>Solución propuesta <span class="tag-sol">Solución</span></label>
-          <textarea id="mso-${id}" placeholder="¿Cómo resuelve tu producto o servicio este problema?" oninput="syncMatriz()"></textarea>
-        </div>
-      </div>
+      <div class="matriz-cols">${camposHTML}</div>
       <div class="m-field field" style="margin-top:10px">
         <label>Resultados cuantitativos esperados <span class="tag-r">Resultados</span></label>
-        <textarea id="mr-${id}" style="min-height:60px" placeholder="Ej: Reducción del 30% en ciclo de ventas, aumento de conversión del 20%..." oninput="syncMatriz()"></textarea>
-      </div>
-      <div class="ai-fill-row">
-        <span class="ai-fill-hint">La IA puede completar esta fila basándose en tu información de empresa y producto.</span>
-        <button class="btn-ai-fill" id="btn-ai-${id}" onclick="aiCompletarFila('${rol}','${id}')">
-          <div class="ai-fill-spinner" id="aifs-${id}"></div>
-          ✦ Completar con IA
-        </button>
+        <textarea id="mr-${id}" style="min-height:60px" placeholder="Ej: Reducción del 30% en ciclo de ventas, aumento de conversión del 20%..." oninput="syncMatriz();scheduleAiFeedback('${id}','r',this.value,'${rol}')"></textarea>
+        <div class="ai-feedback-panel" id="afp-r-${id}">
+          <div class="ai-feedback-hdr">
+            <div class="ai-feedback-hdr-icon">
+              <svg viewBox="0 0 10 10" fill="none"><path d="M5 1L6 3.5H9L6.5 5.5L7.5 8L5 6.5L2.5 8L3.5 5.5L1 3.5H4L5 1Z" stroke="var(--blue)" stroke-width="1" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="ai-feedback-label">Asistente de matriz</span>
+            <div class="ai-analyzing" id="afa-r-${id}" style="display:none">
+              <div class="ai-analyzing-dot"></div><div class="ai-analyzing-dot"></div><div class="ai-analyzing-dot"></div>
+            </div>
+          </div>
+          <div id="afc-r-${id}"></div>
+        </div>
       </div>
     </div>
   `;
@@ -871,55 +930,102 @@ function syncMatriz() {
   document.getElementById('f-matriz').value = JSON.stringify(data);
 }
 
-/* ── AI COMPLETAR FILA ── */
-async function aiCompletarFila(rol, id) {
-  const btn = document.getElementById('btn-ai-' + id);
-  const spinner = document.getElementById('aifs-' + id);
-  btn.classList.add('loading');
-  btn.disabled = true;
-  spinner.style.display = 'block';
+/* ── AI CO-PILOTO: FEEDBACK EN TIEMPO REAL ── */
+const CAMPO_CONTEXTO = {
+  p: {
+    nombre: 'Problema',
+    descripcion: 'Debe describir el problema real que enfrenta el rol, desde su perspectiva. Conciso, con bullets cortos, sin mencionar la solución. Lenguaje cercano al del ejecutivo.',
+    ejemplo: '- Alta tasa de rotación de clientes que cambian por precio o promociones.\n- Dependencia de promociones para retener, lo que erosiona márgenes.\n- Dificultad para diferenciar la oferta frente a competidores.'
+  },
+  s: {
+    nombre: 'Síntomas',
+    descripcion: 'Señales observables y concretas que delatan el problema. No causas, sino evidencias visibles que el rol percibe en su día a día.',
+    ejemplo: '- Tiempos de espera elevados y clientes que repiten información en distintos canales.\n- NPS por debajo del objetivo trimestral.\n- Aumento de quejas sin correlación con acciones correctivas claras.'
+  },
+  i: {
+    nombre: 'Impacto negativo',
+    descripcion: 'Consecuencias reales si el problema no se resuelve. Debe incluir impacto financiero, operativo y/o humano. Específico y cuantificable cuando sea posible.',
+    ejemplo: '- Reducción en rentabilidad y cuota de mercado.\n- Pérdida de participación frente a competidores más ágiles.\n- Desgaste del equipo por gestión manual de procesos sin datos.'
+  },
+  so: {
+    nombre: 'Solución propuesta',
+    descripcion: 'Cómo resuelve el producto o servicio el problema de ESTE rol específicamente. Debe conectar directamente con el problema descrito, sin ser genérico.',
+    ejemplo: '- Plataforma omnicanal que centraliza todos los puntos de contacto en una sola vista.\n- Reportería en tiempo real con KPIs de satisfacción para tomar decisiones inmediatas.\n- Automatización de asignaciones que reduce tiempos operativos hasta en 40%.'
+  },
+  r: {
+    nombre: 'Resultados cuantitativos',
+    descripcion: 'Resultados medibles y esperados. Deben ser concretos, con porcentajes o métricas cuando sea posible. No promesas vagas.',
+    ejemplo: '- Mejora del NPS en un 20% con tasas históricas superiores al 96%.\n- Reducción del 25% en carga de canales tradicionales.\n- Disminución de costos operativos hasta en 40%.'
+  }
+};
 
+function scheduleAiFeedback(matrizId, campoKey, texto, rol) {
+  const timerKey = matrizId + '_' + campoKey;
+  clearTimeout(aiDebounceTimers[timerKey]);
+
+  const panel = document.getElementById(`afp-${campoKey}-${matrizId}`);
+  const analyzing = document.getElementById(`afa-${campoKey}-${matrizId}`);
+  const content = document.getElementById(`afc-${campoKey}-${matrizId}`);
+
+  if (texto.trim().length < 30) {
+    panel.classList.remove('visible');
+    return;
+  }
+
+  panel.classList.add('visible');
+  analyzing.style.display = 'flex';
+  content.innerHTML = '';
+
+  aiDebounceTimers[timerKey] = setTimeout(() => {
+    if (texto === aiLastText[timerKey]) return;
+    aiLastText[timerKey] = texto;
+    runAiFeedback(matrizId, campoKey, texto, rol, analyzing, content);
+  }, 1400);
+}
+
+async function runAiFeedback(matrizId, campoKey, texto, rol, analyzingEl, contentEl) {
+  const ctx = CAMPO_CONTEXTO[campoKey];
   const empresa = {
-    url: document.getElementById('f-url').value,
     productos: getMultiValues('producto-input').join(', '),
     paises: getMultiValues('pais-input').join(', '),
-    vendio: document.getElementById('f-vendio').value,
     canales: document.getElementById('f-canales').value,
     pricing: document.getElementById('f-pricing').value,
-    herr_prosp: document.getElementById('f-prosp').value,
-    herr_otras: document.getElementById('f-otras').value,
-    sintomas_gral: document.getElementById('f-sintomas').value,
     problema_gral: document.getElementById('f-problema').value,
-    impacto_gral: document.getElementById('f-impacto').value,
     resultado_gral: document.getElementById('f-resultado').value,
-    competidores: document.getElementById('f-comp').value,
   };
 
-  const prompt = `Eres un experto en revenue operations y marketing B2B. 
-Tu tarea es completar la matriz de inteligencia comercial para el rol: "${rol}"
+  const prompt = `Eres un experto en revenue operations, ventas B2B y construcción de matrices de inteligencia comercial.
 
-Información de la empresa:
-- URL: ${empresa.url}
+El usuario está completando el campo "${ctx.nombre}" de la matriz para el rol: "${rol}".
+
+Criterios para este campo:
+${ctx.descripcion}
+
+Ejemplo de referencia (formato ideal):
+${ctx.ejemplo}
+
+Contexto de la empresa:
 - Productos/Servicios: ${empresa.productos}
 - Países: ${empresa.paises}
-- Ya vendieron a: ${empresa.vendio}
-- Canales de venta: ${empresa.canales}
+- Canales: ${empresa.canales}
 - Pricing: ${empresa.pricing}
-- Herramientas de prospección: ${empresa.herr_prosp}
-- Otras herramientas: ${empresa.herr_otras}
-- Síntomas generales del cliente: ${empresa.sintomas_gral}
-- Problema raíz general: ${empresa.problema_gral}
-- Impacto general: ${empresa.impacto_gral}
-- Resultado esperado general: ${empresa.resultado_gral}
-- Competidores: ${empresa.competidores}
+- Problema general del cliente: ${empresa.problema_gral}
+- Resultado general esperado: ${empresa.resultado_gral}
 
-Genera los 5 campos de la matriz para el rol "${rol}". Escribe de forma concisa, con bullets cortos, en español neutro (sin localismos). Responde SOLO en JSON con este formato exacto, sin backticks ni markdown:
+Lo que escribió el usuario:
+"${texto}"
+
+Evalúa la respuesta del usuario con criterio estricto. Analiza:
+1. ¿Está escrito desde la perspectiva del rol (no del vendedor)?
+2. ¿Es específico o es genérico?
+3. ¿El formato es correcto (bullets cortos, concretos)?
+4. ¿Falta profundidad, contexto o métricas?
+
+Responde SOLO en JSON sin backticks:
 {
-  "problema": "...",
-  "sintomas": "...",
-  "impacto": "...",
-  "solucion": "...",
-  "resultados": "..."
+  "score": <número del 1 al 10>,
+  "evaluacion": "<2 frases máximo: qué está bien y qué falta, directo>",
+  "sugerencia": "<versión mejorada del texto del usuario, manteniendo su esencia pero con el formato y profundidad correctos. Si ya está bien (score >= 8), pon null>"
 }`;
 
   try {
@@ -928,42 +1034,60 @@ Genera los 5 campos de la matriz para el rol "${rol}". Escribe de forma concisa,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 600,
         messages: [{ role: 'user', content: prompt }]
       })
     });
     const data = await res.json();
-    const text = data.content[0].text.trim().replace(/```json|```/g, '');
-    const parsed = JSON.parse(text);
-    if (parsed.problema) document.getElementById('mp-'+id).value = parsed.problema;
-    if (parsed.sintomas) document.getElementById('ms-'+id).value = parsed.sintomas;
-    if (parsed.impacto) document.getElementById('mi-'+id).value = parsed.impacto;
-    if (parsed.solucion) document.getElementById('mso-'+id).value = parsed.solucion;
-    if (parsed.resultados) document.getElementById('mr-'+id).value = parsed.resultados;
-    syncMatriz();
+    const raw = data.content[0].text.trim().replace(/```json|```/g, '');
+    const parsed = JSON.parse(raw);
+
+    analyzingEl.style.display = 'none';
+
+    const score = parsed.score || 0;
+    const scoreClass = score >= 8 ? 'score-high' : score >= 5 ? 'score-mid' : 'score-low';
+    const scoreLabel = score >= 8 ? 'Excelente' : score >= 5 ? 'Mejorable' : 'Incompleto';
+    const pct = Math.round((score / 10) * 100);
+
+    const fieldId = `m${campoKey}-${matrizId}`;
+
+    let html = `
+      <div class="ai-feedback-score ${scoreClass}">
+        <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+        <span class="score-label">${scoreLabel}</span>
+      </div>
+      <div class="ai-feedback-body">${parsed.evaluacion || ''}</div>
+    `;
+
+    if (parsed.sugerencia) {
+      const escapedSugg = parsed.sugerencia.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+      html += `
+        <div class="ai-feedback-suggestion">
+          <div class="ai-feedback-suggestion-label">✦ Versión sugerida</div>
+          ${parsed.sugerencia.replace(/\n/g, '<br>')}
+          <br>
+          <button class="btn-apply-suggestion" onclick="applySuggestion('${fieldId}','${escapedSugg}','${matrizId}')">Aplicar esta versión</button>
+        </div>
+      `;
+    }
+
+    contentEl.innerHTML = html;
   } catch(e) {
-    alert('Error al consultar la IA. Verifica tu conexión.');
-  } finally {
-    btn.classList.remove('loading');
-    btn.disabled = false;
-    spinner.style.display = 'none';
+    analyzingEl.style.display = 'none';
+    contentEl.innerHTML = '<span style="font-size:12px;color:var(--subtle)">No se pudo analizar. Continúa escribiendo.</span>';
   }
 }
 
-/* ── AI COMPLETAR TODO ── */
-async function aiCompletarTodo() {
-  if (rolesSeleccionados.size === 0) {
-    alert('Primero selecciona al menos un rol en la sección de roles objetivo.');
-    return;
+function applySuggestion(fieldId, suggestion, matrizId) {
+  const field = document.getElementById(fieldId);
+  if (field) {
+    field.value = suggestion.replace(/\\n/g, '\n');
+    syncMatriz();
+    const campoKey = fieldId.replace('m','').replace('-'+matrizId,'');
+    const panel = document.getElementById(`afp-${campoKey}-${matrizId}`);
+    const content = document.getElementById(`afc-${campoKey}-${matrizId}`);
+    if (content) content.innerHTML = '<span style="font-size:12px;color:var(--success)">✓ Versión aplicada. Puedes seguir editando.</span>';
   }
-  const btn = document.getElementById('btn-ai-all');
-  btn.classList.add('loading');
-  btn.disabled = true;
-  for (const rol of rolesSeleccionados) {
-    await aiCompletarFila(rol, sanitizeId(rol));
-  }
-  btn.classList.remove('loading');
-  btn.disabled = false;
 }
 
 /* ── EDIT MODE ── */
