@@ -3,442 +3,418 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Predictable.ai — Inteligencia Comercial</title>
+<title>Predictable.ai — Configuración de sistema de revenue</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#08080A;
-  --surface:#0F0F12;
-  --surface2:#16161A;
-  --surface3:#1E1E24;
-  --border:#252529;
-  --border2:#33333A;
-  --text:#EEEEF2;
-  --muted:#6B6B7A;
-  --subtle:#9898A8;
-  --accent:#8B7CF6;
-  --accent-dim:rgba(139,124,246,0.15);
-  --accent-glow:rgba(139,124,246,0.08);
-  --success:#22C88A;
-  --success-dim:rgba(34,200,138,0.12);
-  --danger:#F04747;
-  --danger-dim:rgba(240,71,71,0.12);
-  --warning:#F0A500;
-  --r:10px;
-  --r-lg:16px;
-  --r-xl:20px;
+  --bg:#F8F9FC;
+  --white:#FFFFFF;
+  --blue-dark:#0F1E3C;
+  --blue-mid:#1A3A6C;
+  --blue:#2B5CC8;
+  --blue-light:#4A7CF4;
+  --blue-pale:#EEF3FE;
+  --blue-pale2:#D9E5FD;
+  --text:#0F1E3C;
+  --muted:#5A6A88;
+  --subtle:#8896B0;
+  --border:#DDE5F0;
+  --border2:#C4D2E8;
+  --success:#0D9E6E;
+  --success-bg:#E8FBF4;
+  --danger:#D93040;
+  --danger-bg:#FEF0F1;
+  --warning:#C07A00;
+  --warning-bg:#FEF7E6;
+  --r:8px;
+  --r-lg:12px;
+  --r-xl:16px;
+  --shadow:0 1px 4px rgba(15,30,60,0.08),0 4px 16px rgba(15,30,60,0.06);
+  --shadow-sm:0 1px 3px rgba(15,30,60,0.1);
 }
 html{scroll-behavior:smooth}
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  line-height:1.6;
-}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;font-size:15px}
 
-/* ── Noise texture overlay ── */
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none;
-  z-index:0;
-  opacity:0.4;
+/* ─── HEADER ─── */
+.header{
+  background:var(--blue-dark);
+  padding:0 2rem;
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(255,255,255,0.08);
 }
-
-/* ── Grid lines background ── */
-body::after{
-  content:'';
-  position:fixed;inset:0;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size:80px 80px;
-  opacity:0.3;
-  pointer-events:none;
-  z-index:0;
-}
-
-.page{
-  position:relative;z-index:1;
-  max-width:760px;
-  margin:0 auto;
-  padding:0 1.5rem 5rem;
-}
-
-/* ── TOP HEADER ── */
-.topbar{
+.header-inner{
+  max-width:860px;margin:0 auto;
   display:flex;align-items:center;justify-content:space-between;
-  padding:1.75rem 0 1.75rem;
-  border-bottom:1px solid var(--border);
-  margin-bottom:3rem;
+  height:60px;
 }
-.brand{display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
 .brand-mark{
-  width:36px;height:36px;
-  background:var(--accent);
-  border-radius:10px;
+  width:32px;height:32px;
+  background:var(--blue-light);
+  border-radius:8px;
   display:flex;align-items:center;justify-content:center;
-  position:relative;
 }
-.brand-mark::after{
-  content:'';
-  position:absolute;inset:-1px;
-  border-radius:11px;
-  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
-  pointer-events:none;
-}
-.brand-mark svg{width:18px;height:18px}
-.brand-name{
-  font-family:'Syne',sans-serif;
-  font-size:16px;font-weight:600;
-  color:var(--text);letter-spacing:0.3px;
-}
-.brand-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
-.status-pill{
+.brand-mark svg{width:16px;height:16px}
+.brand-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:#fff;letter-spacing:0.2px}
+.brand-by{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.header-pill{
   display:flex;align-items:center;gap:7px;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:30px;
-  padding:7px 14px;
-  font-size:12px;color:var(--subtle);
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:30px;padding:6px 14px;
+  font-size:12px;color:rgba(255,255,255,0.6);
 }
-.status-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:var(--success);
-  box-shadow:0 0 8px var(--success);
-  animation:pulse 2s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.dot-live{width:7px;height:7px;border-radius:50%;background:#22C88A;box-shadow:0 0 8px #22C88A;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
-/* ── HERO ── */
-.hero{margin-bottom:2.75rem}
+/* ─── LAYOUT ─── */
+.page{max-width:860px;margin:0 auto;padding:2.5rem 1.5rem 5rem}
+
+/* ─── HERO ─── */
+.hero{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  padding:2.5rem;
+  margin-bottom:2rem;
+  box-shadow:var(--shadow);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--blue),var(--blue-light));
+}
 .hero-tag{
   display:inline-flex;align-items:center;gap:6px;
-  background:var(--accent-dim);
-  border:1px solid rgba(139,124,246,0.25);
-  border-radius:30px;
-  padding:5px 14px;
-  font-size:12px;color:var(--accent);
-  letter-spacing:0.3px;
-  margin-bottom:1.25rem;
+  background:var(--blue-pale);
+  border:1px solid var(--blue-pale2);
+  border-radius:30px;padding:5px 14px;
+  font-size:12px;font-weight:500;color:var(--blue);
+  margin-bottom:1rem;letter-spacing:0.3px;
 }
 .hero h1{
   font-family:'Syne',sans-serif;
-  font-size:clamp(28px,5vw,42px);
-  font-weight:600;
-  line-height:1.15;
-  color:var(--text);
-  margin-bottom:1rem;
-  letter-spacing:-0.5px;
+  font-size:clamp(22px,4vw,32px);
+  font-weight:600;color:var(--blue-dark);
+  line-height:1.2;margin-bottom:0.75rem;
 }
-.hero h1 em{
-  font-style:normal;
-  color:var(--accent);
-}
-.hero p{
-  font-size:15px;
-  color:var(--subtle);
-  max-width:540px;
-  line-height:1.7;
-}
+.hero p{font-size:14px;color:var(--muted);line-height:1.7;max-width:580px}
+.progress-row{display:flex;align-items:center;gap:14px;margin-top:1.5rem}
+.progress-bar{flex:1;height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-light));border-radius:4px;width:0%;transition:width 0.4s ease}
+.progress-pct{font-size:12px;font-weight:500;color:var(--blue);min-width:32px;text-align:right}
 
-/* ── PROGRESS ── */
-.progress-wrap{
-  display:flex;align-items:center;gap:14px;
-  margin-bottom:2.5rem;
-}
-.progress-bar{
-  flex:1;height:3px;
-  background:var(--surface3);
-  border-radius:3px;overflow:hidden;
-}
-.progress-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--accent),#B09AFF);
-  border-radius:3px;
-  width:0%;
-  transition:width 0.4s cubic-bezier(0.4,0,0.2,1);
-}
-.progress-label{
-  font-size:12px;color:var(--muted);
-  min-width:36px;text-align:right;
-}
-
-/* ── SECTION ── */
-.section{margin-bottom:2rem}
-.section-header{
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:1rem;
-}
+/* ─── SECTION ─── */
+.section{margin-bottom:1.5rem}
+.section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;padding:0 0.25rem}
 .section-num{
-  width:22px;height:22px;border-radius:50%;
-  background:var(--surface3);
-  border:1px solid var(--border2);
+  width:24px;height:24px;border-radius:50%;
+  background:var(--blue);
   display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:500;color:var(--muted);
-  flex-shrink:0;
+  font-size:11px;font-weight:600;color:#fff;flex-shrink:0;
 }
-.section-label{
-  font-size:11px;font-weight:500;
-  letter-spacing:1.6px;text-transform:uppercase;
-  color:var(--muted);
-}
+.section-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
 
-/* ── CARD ── */
+/* ─── CARD ─── */
 .card{
-  background:var(--surface);
+  background:var(--white);
   border:1px solid var(--border);
   border-radius:var(--r-xl);
   padding:1.75rem;
-  position:relative;
-  overflow:hidden;
-}
-.card::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(139,124,246,0.3),transparent);
+  box-shadow:var(--shadow-sm);
 }
 
-/* ── FIELDS ── */
-.field{margin-bottom:1.5rem}
+/* ─── FIELD ─── */
+.field{margin-bottom:1.25rem}
 .field:last-child{margin-bottom:0}
-.field>label{
-  display:block;
-  font-size:13px;font-weight:500;
-  color:var(--text);
-  margin-bottom:5px;
-}
-.hint{
-  font-size:12px;color:var(--muted);
-  margin-bottom:8px;line-height:1.5;
-}
-input[type=text],
-input[type=url],
-textarea{
-  width:100%;
-  font-size:14px;
-  padding:12px 15px;
-  background:var(--surface2);
+.field>label{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:5px}
+.hint{font-size:12px;color:var(--subtle);margin-bottom:7px;line-height:1.5}
+input[type=text],input[type=url],textarea,select{
+  width:100%;font-size:14px;padding:10px 13px;
+  background:var(--white);
   border:1px solid var(--border);
   border-radius:var(--r);
   color:var(--text);
-  font-family:'DM Sans',sans-serif;
+  font-family:'Inter',sans-serif;
   outline:none;
-  transition:border-color 0.2s,box-shadow 0.2s,background 0.2s;
+  transition:border-color 0.15s,box-shadow 0.15s;
   -webkit-appearance:none;
 }
-input[type=text]::placeholder,
-input[type=url]::placeholder,
-textarea::placeholder{color:var(--muted)}
-input[type=text]:hover,
-input[type=url]:hover,
-textarea:hover{border-color:var(--border2);background:var(--surface3)}
-input[type=text]:focus,
-input[type=url]:focus,
-textarea:focus{
-  border-color:var(--accent);
-  background:var(--surface2);
-  box-shadow:0 0 0 3px var(--accent-glow);
+input[type=text]::placeholder,input[type=url]::placeholder,textarea::placeholder{color:var(--subtle)}
+input[type=text]:hover,input[type=url]:hover,textarea:hover,select:hover{border-color:var(--border2)}
+input[type=text]:focus,input[type=url]:focus,textarea:focus,select:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(43,92,200,0.1);
 }
-textarea{resize:vertical;min-height:96px;line-height:1.65}
-
+textarea{resize:vertical;min-height:90px;line-height:1.65}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235A6A88' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 
-/* ── TAG INPUT ── */
-.tag-wrap{
-  display:flex;flex-wrap:wrap;gap:6px;
-  padding:9px 11px;
-  border:1px solid var(--border);
-  border-radius:var(--r);
-  background:var(--surface2);
-  min-height:48px;cursor:text;
-  transition:border-color 0.2s,box-shadow 0.2s;
+/* ─── MULTI-INPUT (productos/países) ─── */
+.multi-wrap{display:flex;flex-direction:column;gap:8px}
+.multi-item{display:flex;align-items:center;gap:8px}
+.multi-item input{flex:1}
+.btn-remove{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--border);
+  background:var(--white);color:var(--subtle);font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.15s;
 }
-.tag-wrap:hover{border-color:var(--border2);background:var(--surface3)}
-.tag-wrap:focus-within{
-  border-color:var(--accent);
-  box-shadow:0 0 0 3px var(--accent-glow);
-  background:var(--surface2);
+.btn-remove:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+.btn-add{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;background:var(--blue-pale);
+  border:1px solid var(--blue-pale2);border-radius:var(--r);
+  font-size:12px;font-weight:500;color:var(--blue);
+  cursor:pointer;transition:all 0.15s;margin-top:4px;
+  font-family:'Inter',sans-serif;
 }
-.tag{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 12px;
-  background:var(--accent-dim);
-  border:1px solid rgba(139,124,246,0.3);
-  border-radius:20px;
-  font-size:12px;color:#C4BAFF;
-  animation:fadeIn 0.15s ease;
-}
-@keyframes fadeIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-.tag button{
-  background:none;border:none;cursor:pointer;
-  font-size:14px;line-height:1;
-  color:rgba(196,186,255,0.6);padding:0;
-  transition:color 0.1s;
-}
-.tag button:hover{color:#C4BAFF}
-.tag-wrap input{
-  border:none;outline:none;background:transparent;
-  font-size:13px;color:var(--text);
-  font-family:'DM Sans',sans-serif;
-  min-width:100px;flex:1;padding:2px 0;
-}
-.tag-wrap input::placeholder{color:var(--muted)}
+.btn-add:hover{background:var(--blue-pale2)}
 
-/* ── PRICING GRID ── */
+/* ─── CANAL CHIPS ─── */
+.canal-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.canal-chip{
+  padding:6px 14px;border-radius:30px;
+  border:1.5px solid var(--border);
+  background:var(--white);
+  font-size:13px;color:var(--muted);
+  cursor:pointer;transition:all 0.15s;
+  user-select:none;
+}
+.canal-chip:hover{border-color:var(--blue-pale2);background:var(--blue-pale);color:var(--blue)}
+.canal-chip.sel{border-color:var(--blue);background:var(--blue-pale);color:var(--blue);font-weight:500}
+.canal-otros{margin-top:8px}
+
+/* ─── PRICING ─── */
 .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pc{
-  border:1px solid var(--border);
-  border-radius:var(--r);
-  padding:14px 16px;cursor:pointer;
-  transition:all 0.2s;
-  background:var(--surface2);
-  position:relative;overflow:hidden;
+  border:1.5px solid var(--border);
+  border-radius:var(--r);padding:13px 15px;
+  cursor:pointer;transition:all 0.15s;background:var(--white);
 }
-.pc:hover{border-color:var(--border2);background:var(--surface3)}
-.pc.sel{
-  border-color:var(--accent);
-  background:var(--accent-dim);
-}
-.pc.sel::after{
-  content:'';
-  position:absolute;top:0;left:0;right:0;height:2px;
-  background:var(--accent);
-}
-.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.pc:hover{border-color:var(--blue-pale2);background:var(--blue-pale)}
+.pc.sel{border-color:var(--blue);background:var(--blue-pale)}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
 .pc-name{font-size:13px;font-weight:500;color:var(--text)}
-.pc-radio{
-  width:17px;height:17px;border-radius:50%;
-  border:1.5px solid var(--border2);
+.pc-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--border2);transition:all 0.15s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pc.sel .pc-radio{border-color:var(--blue);background:var(--blue)}
+.pc-dot{width:6px;height:6px;border-radius:50%;background:#fff;opacity:0;transition:opacity 0.15s}
+.pc.sel .pc-dot{opacity:1}
+.pc-desc{font-size:12px;color:var(--subtle)}
+
+/* ─── HERRAMIENTAS ─── */
+.tool-section{margin-bottom:1.25rem}
+.tool-label{font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tool-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:0.5px}
+.tool-badge.prosp{background:var(--blue-pale);color:var(--blue)}
+.tool-badge.otro{background:#F0F4FF;color:#6B7FC4}
+.tool-examples{font-size:11px;color:var(--subtle);margin-bottom:7px}
+.tag-wrap{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:8px 10px;border:1px solid var(--border);
+  border-radius:var(--r);background:var(--white);min-height:44px;
+  cursor:text;transition:border-color 0.15s,box-shadow 0.15s;
+}
+.tag-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,92,200,0.1)}
+.tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;background:var(--blue-pale);
+  border:1px solid var(--blue-pale2);border-radius:20px;
+  font-size:12px;color:var(--blue);
+}
+.tag button{background:none;border:none;cursor:pointer;font-size:13px;color:var(--blue);opacity:0.6;padding:0;line-height:1}
+.tag button:hover{opacity:1}
+.tag-wrap input{border:none;outline:none;background:transparent;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;min-width:100px;flex:1;padding:2px 0}
+.tag-wrap input::placeholder{color:var(--subtle)}
+
+/* ─── MARCO PROBLEMA ─── */
+.marco-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.marco-field label{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:500;color:var(--text);margin-bottom:5px;
+}
+.marco-icon{
+  width:20px;height:20px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s;flex-shrink:0;
+  font-size:10px;font-weight:700;
 }
-.pc.sel .pc-radio{border-color:var(--accent);background:var(--accent)}
-.pc-radio-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:#fff;opacity:0;transition:opacity 0.15s;
-}
-.pc.sel .pc-radio-dot{opacity:1}
-.pc-desc{font-size:12px;color:var(--muted)}
+.mi-s{background:#FEF3E6;color:#C07A00}
+.mi-p{background:var(--blue-pale);color:var(--blue)}
+.mi-i{background:#FEF0F1;color:var(--danger)}
+.mi-r{background:var(--success-bg);color:var(--success)}
 
-/* ── CHAR COUNT ── */
-.char-count{font-size:11px;color:var(--muted);text-align:right;margin-top:5px}
-
-/* ── ERROR ── */
-.err{
-  font-size:12px;color:var(--danger);
-  margin-top:5px;display:none;
-  animation:fadeIn 0.15s ease;
-}
-
-/* ── DIVIDER ── */
-.divider{height:1px;background:var(--border);margin:2rem 0}
-
-/* ── SUBMIT ── */
-.submit-wrap{
+/* ─── MATRIZ SECTION ─── */
+.matriz-header{
   display:flex;align-items:center;justify-content:space-between;
-  gap:1.5rem;margin-top:2.5rem;
+  gap:1rem;margin-bottom:1rem;
+  flex-wrap:wrap;
 }
-.submit-note{font-size:12px;color:var(--muted);line-height:1.6;max-width:340px}
-.submit-note strong{color:var(--subtle);font-weight:400}
-.btn-submit{
-  padding:13px 36px;
-  background:var(--accent);
-  color:#fff;border:none;
-  border-radius:var(--r);
-  font-size:14px;font-weight:500;
-  font-family:'DM Sans',sans-serif;
-  cursor:pointer;letter-spacing:0.2px;
-  transition:opacity 0.15s,transform 0.1s,box-shadow 0.2s;
-  white-space:nowrap;
-  position:relative;overflow:hidden;
+.ai-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 18px;
+  background:var(--blue-dark);
+  color:#fff;border:none;border-radius:var(--r);
+  font-size:13px;font-weight:500;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:opacity 0.15s;
+  box-shadow:0 2px 8px rgba(15,30,60,0.2);
 }
-.btn-submit:hover{
-  opacity:0.9;
-  box-shadow:0 0 24px rgba(139,124,246,0.4);
-}
-.btn-submit:active{transform:scale(0.97)}
-.btn-submit:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none}
-.btn-submit .spinner{
-  display:none;
-  width:15px;height:15px;
-  border:2px solid rgba(255,255,255,0.3);
-  border-top-color:#fff;
-  border-radius:50%;
-  animation:spin 0.7s linear infinite;
-  margin-right:8px;
-  vertical-align:middle;
-}
-.btn-submit.loading .spinner{display:inline-block}
+.ai-btn:hover{opacity:0.88}
+.ai-btn:disabled{opacity:0.5;cursor:not-allowed}
+.ai-btn svg{width:14px;height:14px;flex-shrink:0}
+.ai-spinner{display:none;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+.ai-btn.loading .ai-spinner{display:block}
+.ai-btn.loading .ai-icon{display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── TOAST ── */
-.toast{
-  display:none;
-  margin-top:1.25rem;
-  padding:16px 20px;
-  background:var(--success-dim);
-  border:1px solid rgba(34,200,138,0.25);
-  border-radius:var(--r-lg);
-  animation:slideUp 0.3s ease;
+.rol-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.rol-chip{
+  padding:5px 12px;border-radius:30px;border:1.5px solid var(--border);
+  background:var(--white);font-size:12px;color:var(--muted);
+  cursor:pointer;transition:all 0.15s;user-select:none;
 }
-@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.toast-title{
-  font-size:14px;font-weight:500;
-  color:var(--success);margin-bottom:3px;
-}
-.toast-msg{font-size:13px;color:rgba(34,200,138,0.7);line-height:1.5}
+.rol-chip:hover{border-color:var(--border2);color:var(--text)}
+.rol-chip.sel{border-color:var(--blue);background:var(--blue-pale);color:var(--blue);font-weight:500}
 
-/* ── FOOTER ── */
-.footer{
-  margin-top:3rem;padding-top:1.5rem;
-  border-top:1px solid var(--border);
+.matriz-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:var(--shadow-sm);margin-bottom:10px;
+}
+.matriz-rol-hdr{
   display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--bg);
+  border-bottom:1px solid var(--border);cursor:pointer;
+  gap:10px;
 }
-.footer-brand{
-  font-family:'Syne',sans-serif;
-  font-size:12px;color:var(--muted);letter-spacing:0.5px;
+.matriz-rol-name{font-size:13px;font-weight:600;color:var(--blue-dark)}
+.chevron{font-size:12px;color:var(--subtle);transition:transform 0.2s}
+.chevron.open{transform:rotate(180deg)}
+.matriz-rol-body{padding:16px;display:none}
+.matriz-rol-body.open{display:block}
+.matriz-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m-field label{font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:5px}
+.m-field label span{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-left:4px}
+.tag-p{background:#FEF3E6;color:#C07A00}
+.tag-s{background:var(--blue-pale);color:var(--blue)}
+.tag-i{background:var(--danger-bg);color:var(--danger)}
+.tag-r{background:var(--success-bg);color:var(--success)}
+.tag-sol{background:#F0F0FF;color:#5050C0}
+.m-field textarea{min-height:75px;font-size:13px}
+.ai-fill-row{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 0 4px;
+  border-top:1px solid var(--border);
+  margin-top:12px;
 }
-.footer-brand span{color:var(--accent)}
-.footer-note{font-size:11px;color:var(--muted)}
+.ai-fill-hint{font-size:12px;color:var(--subtle);flex:1}
+.btn-ai-fill{
+  padding:7px 14px;background:var(--blue-pale);border:1px solid var(--blue-pale2);
+  border-radius:var(--r);font-size:12px;font-weight:500;color:var(--blue);
+  cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-ai-fill:hover{background:var(--blue-pale2)}
+.btn-ai-fill:disabled{opacity:0.5;cursor:not-allowed}
+.ai-fill-spinner{width:11px;height:11px;border:1.5px solid rgba(43,92,200,0.3);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;display:none}
+.btn-ai-fill.loading .ai-fill-spinner{display:block}
 
-/* ── RESPONSIVE ── */
-@media(max-width:560px){
-  .row2,.pricing-grid{grid-template-columns:1fr}
-  .submit-wrap{flex-direction:column;align-items:flex-start}
-  .btn-submit{width:100%;text-align:center}
-  .topbar{flex-wrap:wrap;gap:12px}
-  .hero h1{font-size:28px}
+/* ─── ERR / CHAR ─── */
+.err{font-size:12px;color:var(--danger);margin-top:5px;display:none}
+.char-count{font-size:11px;color:var(--subtle);text-align:right;margin-top:4px}
+
+/* ─── SUBMIT ─── */
+.submit-area{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:1.5rem 1.75rem;
+  box-shadow:var(--shadow-sm);margin-top:1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+}
+.submit-note{font-size:13px;color:var(--muted);line-height:1.6;max-width:380px}
+.submit-note strong{color:var(--blue);font-weight:500}
+.btn-submit{
+  padding:12px 32px;background:var(--blue);color:#fff;
+  border:none;border-radius:var(--r);
+  font-size:14px;font-weight:500;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all 0.15s;white-space:nowrap;
+  box-shadow:0 2px 8px rgba(43,92,200,0.3);
+}
+.btn-submit:hover{background:var(--blue-mid);box-shadow:0 4px 16px rgba(43,92,200,0.35)}
+.btn-submit:active{transform:scale(0.98)}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;box-shadow:none}
+.submit-spinner{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+.btn-submit.loading .submit-spinner{display:inline-block}
+
+.toast{
+  display:none;margin-top:1rem;padding:14px 18px;
+  background:var(--success-bg);border:1px solid rgba(13,158,110,0.25);
+  border-radius:var(--r-lg);
+}
+.toast-title{font-size:14px;font-weight:500;color:var(--success);margin-bottom:2px}
+.toast-msg{font-size:13px;color:rgba(13,158,110,0.75);line-height:1.5}
+
+/* ─── EDIT BANNER ─── */
+.edit-banner{
+  display:flex;align-items:center;gap:10px;
+  background:var(--warning-bg);border:1px solid rgba(192,122,0,0.2);
+  border-radius:var(--r-lg);padding:12px 16px;margin-bottom:1.5rem;
+  font-size:13px;color:var(--warning);
+}
+.edit-banner svg{width:16px;height:16px;flex-shrink:0}
+.btn-edit-toggle{
+  margin-left:auto;padding:5px 12px;background:rgba(192,122,0,0.1);
+  border:1px solid rgba(192,122,0,0.25);border-radius:var(--r);
+  font-size:12px;font-weight:500;color:var(--warning);cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all 0.15s;white-space:nowrap;
+}
+.btn-edit-toggle:hover{background:rgba(192,122,0,0.15)}
+
+/* ─── DIVIDER ─── */
+.divider{height:1px;background:var(--border);margin:1.5rem 0}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:580px){
+  .row2,.pricing-grid,.marco-grid,.matriz-cols{grid-template-columns:1fr}
+  .submit-area{flex-direction:column;align-items:flex-start}
+  .btn-submit{width:100%}
+  .header-pill{display:none}
+  .hero{padding:1.5rem}
 }
 </style>
 </head>
 <body>
 
-<div class="page">
-
-  <!-- TOPBAR -->
-  <div class="topbar">
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
     <div class="brand">
       <div class="brand-mark">
-        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 9L7.5 13L14 5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg viewBox="0 0 16 16" fill="none">
+          <path d="M3 8L6.5 12L13 4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
       <div>
         <div class="brand-name">Predictable.ai</div>
-        <div class="brand-sub">by VANAR</div>
+        <div class="brand-by">by VANAR</div>
       </div>
     </div>
-    <div class="status-pill">
-      <div class="status-dot"></div>
+    <div class="header-pill">
+      <div class="dot-live"></div>
       Configuración activa
     </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- EDIT BANNER -->
+  <div class="edit-banner" id="edit-banner" style="display:none">
+    <svg viewBox="0 0 16 16" fill="none"><path d="M11 2L14 5L5 14H2V11L11 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <span>Estás en modo edición. Puedes actualizar cualquier campo y volver a enviar.</span>
+    <button class="btn-edit-toggle" onclick="cancelEdit()">Cancelar edición</button>
   </div>
 
   <!-- HERO -->
@@ -447,86 +423,95 @@ textarea{resize:vertical;min-height:96px;line-height:1.65}
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M5 3v2l1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Revenue Execution Intelligence
     </div>
-    <h1>Cuéntanos sobre<br><em>tu negocio</em></h1>
+    <h1>Inteligencia comercial<br>de tu empresa</h1>
     <p>Esta información construye tu sistema de revenue desde la estructura real de tu empresa. Cada campo impacta directamente en la precisión del modelo.</p>
-  </div>
-
-  <!-- PROGRESS -->
-  <div class="progress-wrap">
-    <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
-    <div class="progress-label" id="prog-label">0%</div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+      <div class="progress-pct" id="prog-label">0%</div>
+    </div>
   </div>
 
   <!-- SECTION 1: EMPRESA -->
   <div class="section">
-    <div class="section-header">
-      <div class="section-num">1</div>
-      <div class="section-label">Empresa</div>
-    </div>
+    <div class="section-hdr"><div class="section-num">1</div><div class="section-title">Empresa</div></div>
     <div class="card">
       <div class="field">
-        <label>Sitio web</label>
-        <div class="hint">URL principal de la empresa</div>
-        <input type="url" id="f-url" placeholder="https://tuempresa.com" oninput="updateProgress()"/>
+        <label>Sitio web de la empresa</label>
+        <div class="hint">URL principal. Ej: https://tuempresa.com</div>
+        <input type="url" id="f-url" placeholder="https://" oninput="updateProgress()"/>
         <div class="err" id="e-url">Ingresa una URL válida (debe comenzar con https://)</div>
       </div>
-      <div class="row2">
-        <div class="field">
-          <label>Producto o servicio principal</label>
-          <input type="text" id="f-producto" placeholder="Ej: Software de contratos" oninput="updateProgress()"/>
+
+      <div class="field">
+        <label>Productos o servicios</label>
+        <div class="hint">Agrega uno por línea. Ej: Software de gestión de contratos, Consultoría de implementación</div>
+        <div class="multi-wrap" id="productos-wrap">
+          <div class="multi-item">
+            <input type="text" class="producto-input" placeholder="Ej: Software de gestión de contratos" oninput="updateProgress()"/>
+          </div>
         </div>
-        <div class="field">
-          <label>País o países donde operan</label>
-          <input type="text" id="f-paises" placeholder="Ej: México, Colombia, Perú" oninput="updateProgress()"/>
+        <button class="btn-add" onclick="addMultiItem('productos-wrap','producto-input','Ej: Servicio adicional')">+ Agregar producto o servicio</button>
+      </div>
+
+      <div class="field">
+        <label>Países o regiones donde operan</label>
+        <div class="hint">Agrega cada país o región por separado</div>
+        <div class="multi-wrap" id="paises-wrap">
+          <div class="multi-item">
+            <input type="text" class="pais-input" placeholder="Ej: México" oninput="updateProgress()"/>
+          </div>
         </div>
+        <button class="btn-add" onclick="addMultiItem('paises-wrap','pais-input','Ej: Colombia')">+ Agregar país o región</button>
+      </div>
+
+      <div class="field">
+        <label>¿Ya vendieron? ¿A quién?</label>
+        <div class="hint">Menciona clientes o perfiles de clientes actuales. Ej: Ya vendimos a 3 empresas de retail en México con equipos de ventas de más de 20 personas.</div>
+        <textarea id="f-vendio" placeholder="Ej: Ya vendimos a Grupo Axo, empresa retail con más de 500 empleados, y a una fintech en etapa Serie A..." oninput="updateProgress()"></textarea>
       </div>
     </div>
   </div>
 
   <!-- SECTION 2: MODELO COMERCIAL -->
   <div class="section">
-    <div class="section-header">
-      <div class="section-num">2</div>
-      <div class="section-label">Modelo comercial</div>
-    </div>
+    <div class="section-hdr"><div class="section-num">2</div><div class="section-title">Modelo comercial</div></div>
     <div class="card">
       <div class="field">
         <label>Canales de venta actuales</label>
-        <div class="hint">Escribe cada canal y presiona Enter para añadirlo</div>
-        <div class="tag-wrap" id="tw-canales">
-          <input id="ti-canales" placeholder="Ej: Outbound, inbound, referidos..."/>
+        <div class="hint">Selecciona los que apliquen y/o escribe otros</div>
+        <div class="canal-grid" id="canal-chips">
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Outbound directo">Outbound directo</div>
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Inbound / marketing">Inbound / marketing</div>
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Referidos">Referidos</div>
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Canales / resellers">Canales / resellers</div>
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Redes sociales">Redes sociales</div>
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Eventos y ferias">Eventos y ferias</div>
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Partnerships">Partnerships</div>
+          <div class="canal-chip" onclick="toggleCanal(this)" data-v="Marketplace">Marketplace</div>
+        </div>
+        <div class="canal-otros">
+          <input type="text" id="f-canales-otros" placeholder="Otros canales (separados por coma)..." oninput="updateProgress()"/>
         </div>
         <input type="hidden" id="f-canales"/>
       </div>
+
       <div class="field">
         <label>Modelo de pricing</label>
         <div class="pricing-grid">
           <div class="pc" data-v="Suscripción" onclick="selPricing(this)">
-            <div class="pc-top">
-              <span class="pc-name">Suscripción</span>
-              <div class="pc-radio"><div class="pc-radio-dot"></div></div>
-            </div>
+            <div class="pc-top"><span class="pc-name">Suscripción</span><div class="pc-radio"><div class="pc-dot"></div></div></div>
             <div class="pc-desc">Mensual o anual recurrente</div>
           </div>
           <div class="pc" data-v="Por proyecto" onclick="selPricing(this)">
-            <div class="pc-top">
-              <span class="pc-name">Por proyecto</span>
-              <div class="pc-radio"><div class="pc-radio-dot"></div></div>
-            </div>
+            <div class="pc-top"><span class="pc-name">Por proyecto</span><div class="pc-radio"><div class="pc-dot"></div></div></div>
             <div class="pc-desc">Fee único o por entregable</div>
           </div>
-          <div class="pc" data-v="Por uso" onclick="selPricing(this)">
-            <div class="pc-top">
-              <span class="pc-name">Por uso</span>
-              <div class="pc-radio"><div class="pc-radio-dot"></div></div>
-            </div>
-            <div class="pc-desc">Consumo, volumen o transacción</div>
+          <div class="pc" data-v="Por producto" onclick="selPricing(this)">
+            <div class="pc-top"><span class="pc-name">Por producto</span><div class="pc-radio"><div class="pc-dot"></div></div></div>
+            <div class="pc-desc">Precio por unidad o licencia</div>
           </div>
           <div class="pc" data-v="Híbrido" onclick="selPricing(this)">
-            <div class="pc-top">
-              <span class="pc-name">Híbrido</span>
-              <div class="pc-radio"><div class="pc-radio-dot"></div></div>
-            </div>
+            <div class="pc-top"><span class="pc-name">Híbrido</span><div class="pc-radio"><div class="pc-dot"></div></div></div>
             <div class="pc-desc">Combinación de modelos</div>
           </div>
         </div>
@@ -536,16 +521,126 @@ textarea{resize:vertical;min-height:96px;line-height:1.65}
     </div>
   </div>
 
-  <!-- SECTION 3: COMPETENCIA -->
+  <!-- SECTION 3: HERRAMIENTAS -->
   <div class="section">
-    <div class="section-header">
-      <div class="section-num">3</div>
-      <div class="section-label">Competencia</div>
+    <div class="section-hdr"><div class="section-num">3</div><div class="section-title">Herramientas de adquisición</div></div>
+    <div class="card">
+      <div class="tool-section">
+        <div class="tool-label">
+          Herramientas de prospección
+          <span class="tool-badge prosp">Prospección</span>
+        </div>
+        <div class="tool-examples">Ej: Apollo, Hunter, LinkedIn Sales Navigator, Lusha, ZoomInfo, Phantom Buster, Clay</div>
+        <div class="tag-wrap" id="tw-prosp">
+          <input id="ti-prosp" placeholder="Escribe una herramienta y presiona Enter..."/>
+        </div>
+        <input type="hidden" id="f-prosp"/>
+      </div>
+      <div class="divider"></div>
+      <div class="tool-section" style="margin-bottom:0">
+        <div class="tool-label">
+          Otras herramientas comerciales
+          <span class="tool-badge otro">CRM / automatización</span>
+        </div>
+        <div class="tool-examples">Ej: HubSpot, Salesforce, Pipedrive, Lemlist, Instantly, Zapier, Make, Notion</div>
+        <div class="tag-wrap" id="tw-otras">
+          <input id="ti-otras" placeholder="Escribe una herramienta y presiona Enter..."/>
+        </div>
+        <input type="hidden" id="f-otras"/>
+      </div>
     </div>
+  </div>
+
+  <!-- SECTION 4: CONTEXTO COMERCIAL (MARCO PROBLEMA) -->
+  <div class="section">
+    <div class="section-hdr"><div class="section-num">4</div><div class="section-title">Definición del problema y solución</div></div>
+    <div class="card">
+      <div class="hint" style="margin-bottom:1rem">Framework basado en Síntoma → Problema → Impacto → Resultado. Completa cada cuadrante desde la perspectiva del cliente.</div>
+      <div class="marco-grid">
+        <div class="marco-field field">
+          <label>
+            <div class="marco-icon mi-s">S</div>
+            Síntomas
+          </label>
+          <div class="hint">¿Qué señales externas observa el cliente? ¿Qué lo hace notar que hay un problema?</div>
+          <textarea id="f-sintomas" placeholder="Ej: El equipo comercial no llega a cuota, hay mucha rotación en ventas, el pipeline está estancado..." oninput="updateProgress();countChars('f-sintomas','cc-sint')"></textarea>
+          <div class="char-count" id="cc-sint">0 / 500</div>
+        </div>
+        <div class="marco-field field">
+          <label>
+            <div class="marco-icon mi-p">P</div>
+            Problema raíz
+          </label>
+          <div class="hint">¿Cuál es la causa real detrás de esos síntomas? El problema que el cliente no siempre sabe articular.</div>
+          <textarea id="f-problema" placeholder="Ej: No tienen un sistema de prospección predecible; dependen de referidos o de la suerte del equipo..." oninput="updateProgress();countChars('f-problema','cc-prob')"></textarea>
+          <div class="char-count" id="cc-prob">0 / 500</div>
+        </div>
+        <div class="marco-field field">
+          <label>
+            <div class="marco-icon mi-i">I</div>
+            Impacto negativo
+          </label>
+          <div class="hint">¿Qué consecuencias tiene el problema si no se resuelve? Financiero, operativo, humano.</div>
+          <textarea id="f-impacto" placeholder="Ej: Pérdida de oportunidades, ciclos de venta largos, presión sobre dirección, crecimiento estancado..." oninput="updateProgress();countChars('f-impacto','cc-imp')"></textarea>
+          <div class="char-count" id="cc-imp">0 / 500</div>
+        </div>
+        <div class="marco-field field">
+          <label>
+            <div class="marco-icon mi-r">R</div>
+            Resultado esperado
+          </label>
+          <div class="hint">¿Qué resultado concreto y medible obtiene el cliente con tu solución?</div>
+          <textarea id="f-resultado" placeholder="Ej: Pipeline constante, reuniones calificadas cada semana, revenue predecible sin depender de referidos..." oninput="updateProgress();countChars('f-resultado','cc-res')"></textarea>
+          <div class="char-count" id="cc-res">0 / 500</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: MATRIZ DE ROLES -->
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-num">5</div>
+      <div class="section-title">Matriz de roles e inteligencia comercial</div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <div class="matriz-header">
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">Roles objetivo</div>
+          <div style="font-size:12px;color:var(--subtle)">Selecciona los roles a los que vendes y completa la matriz. La IA puede ayudarte a completarla.</div>
+        </div>
+        <button class="ai-btn" id="btn-ai-all" onclick="aiCompletarTodo()">
+          <svg class="ai-icon" viewBox="0 0 14 14" fill="none"><path d="M7 1L8.5 5.5H13L9.5 8.5L11 13L7 10L3 13L4.5 8.5L1 5.5H5.5L7 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          <div class="ai-spinner"></div>
+          Completar todo con IA
+        </button>
+      </div>
+      <div class="rol-selector" id="rol-selector">
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Gerente General / CEO">CEO / Gerente General</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Gerente Comercial">Gerente Comercial</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Gerente de Ventas">Gerente de Ventas</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Director de Marketing">Director de Marketing</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Gerente de Operaciones">Gerente de Operaciones</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Gerente de RRHH">Gerente de RRHH</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="CFO / Gerente Financiero">CFO / Gerente Financiero</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="CTO / Director de Tecnología">CTO / Director de Tecnología</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Gerente de Experiencia de Cliente">Gerente de CX</div>
+        <div class="rol-chip" onclick="toggleRol(this)" data-rol="Socio / Fundador">Socio / Fundador</div>
+      </div>
+    </div>
+
+    <div id="matriz-cards"></div>
+    <input type="hidden" id="f-matriz"/>
+  </div>
+
+  <!-- SECTION 6: COMPETENCIA -->
+  <div class="section">
+    <div class="section-hdr"><div class="section-num">6</div><div class="section-title">Competencia</div></div>
     <div class="card">
       <div class="field">
         <label>Competidores principales</label>
-        <div class="hint">Escribe el nombre de cada competidor y presiona Enter</div>
+        <div class="hint">Escribe cada competidor y presiona Enter</div>
         <div class="tag-wrap" id="tw-comp">
           <input id="ti-comp" placeholder="Ej: HubSpot, Salesforce, Pipedrive..."/>
         </div>
@@ -554,59 +649,76 @@ textarea{resize:vertical;min-height:96px;line-height:1.65}
     </div>
   </div>
 
-  <!-- SECTION 4: CONTEXTO COMERCIAL -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">4</div>
-      <div class="section-label">Contexto comercial</div>
-    </div>
-    <div class="card">
-      <div class="field">
-        <label>¿Qué problema resuelve tu producto o servicio?</label>
-        <div class="hint">Descríbelo desde la perspectiva del cliente, no del producto</div>
-        <textarea id="f-problema" maxlength="600"
-          placeholder="Ej: Las empresas pierden tiempo y dinero gestionando contratos en hojas de cálculo, sin visibilidad ni control del proceso..."
-          oninput="updateProgress();countChars('f-problema','cc-prob')"></textarea>
-        <div class="char-count" id="cc-prob">0 / 600</div>
-      </div>
-      <div class="field">
-        <label>¿Qué resultado concreto obtiene el cliente?</label>
-        <div class="hint">Resultado medible o transformación que genera tu solución</div>
-        <textarea id="f-resultado" maxlength="600"
-          placeholder="Ej: Reducen hasta un 60% el tiempo de ciclo contractual y eliminan errores de cumplimiento..."
-          oninput="updateProgress();countChars('f-resultado','cc-res')"></textarea>
-        <div class="char-count" id="cc-res">0 / 600</div>
-      </div>
-    </div>
-  </div>
-
   <!-- SUBMIT -->
-  <div class="submit-wrap">
+  <div class="submit-area">
     <div class="submit-note">
-      Tu información se almacena de forma segura y se usa exclusivamente para construir tu sistema de revenue en <strong>Predictable.ai</strong>.
+      Tu información se usa exclusivamente para construir tu sistema de revenue en <strong>Predictable.ai</strong>. Puedes actualizar el formulario en cualquier momento.
     </div>
     <button class="btn-submit" id="btn-send" onclick="handleSubmit()">
-      <span class="spinner"></span>
+      <span class="submit-spinner"></span>
       Enviar información
     </button>
   </div>
-
   <div class="toast" id="toast">
     <div class="toast-title">Información enviada correctamente</div>
     <div class="toast-msg">El equipo de Predictable.ai la recibirá en breve y comenzará a configurar tu sistema de revenue.</div>
   </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    <div class="footer-brand"><span>Predictable.ai</span> — by VANAR</div>
-    <div class="footer-note">Revenue Execution Infrastructure</div>
-  </div>
-
-</div>
+</div><!-- /page -->
 
 <script>
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzXzlEPHXFNHty30D9rBvnbHw_gfh3NtwhSiZsS4KMMxJfLzoeuo_jibJnIbLtRBer6Ng/exec';
 
+/* ── MULTI ITEM (productos / países) ── */
+function addMultiItem(wrapId, cls, placeholder) {
+  const wrap = document.getElementById(wrapId);
+  const div = document.createElement('div');
+  div.className = 'multi-item';
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = cls;
+  inp.placeholder = placeholder;
+  inp.addEventListener('input', updateProgress);
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove';
+  btn.innerHTML = '×';
+  btn.type = 'button';
+  btn.addEventListener('click', () => { div.remove(); updateProgress(); });
+  div.appendChild(inp);
+  div.appendChild(btn);
+  wrap.appendChild(div);
+  inp.focus();
+}
+
+function getMultiValues(cls) {
+  return Array.from(document.querySelectorAll('.' + cls))
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+/* ── CANAL CHIPS ── */
+function toggleCanal(el) {
+  el.classList.toggle('sel');
+  syncCanales();
+}
+function syncCanales() {
+  const sel = Array.from(document.querySelectorAll('.canal-chip.sel')).map(c => c.dataset.v);
+  const otros = document.getElementById('f-canales-otros').value.trim();
+  const all = [...sel, ...(otros ? otros.split(',').map(s=>s.trim()).filter(Boolean) : [])];
+  document.getElementById('f-canales').value = all.join(', ');
+  updateProgress();
+}
+document.getElementById('f-canales-otros').addEventListener('input', syncCanales);
+
+/* ── PRICING ── */
+function selPricing(el) {
+  document.querySelectorAll('.pc').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('f-pricing').value = el.dataset.v;
+  document.getElementById('e-pricing').style.display = 'none';
+  updateProgress();
+}
+
+/* ── TAG INPUTS ── */
 function makeTagInput(wrapId, inputId, hiddenId) {
   const wrap = document.getElementById(wrapId);
   const inp = document.getElementById(inputId);
@@ -617,23 +729,18 @@ function makeTagInput(wrapId, inputId, hiddenId) {
     tags.forEach((tag, i) => {
       const el = document.createElement('div');
       el.className = 'tag';
+      el.appendChild(document.createTextNode(tag));
       const btn = document.createElement('button');
       btn.textContent = '×';
       btn.type = 'button';
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        tags.splice(i, 1);
-        render();
-        updateProgress();
-      });
-      el.appendChild(document.createTextNode(tag));
+      btn.addEventListener('click', e => { e.stopPropagation(); tags.splice(i,1); render(); updateProgress(); });
       el.appendChild(btn);
       wrap.insertBefore(el, inp);
     });
     hid.value = tags.join(', ');
   }
   inp.addEventListener('keydown', function(e) {
-    if ((e.key === 'Enter' || e.key === ',') && this.value.trim()) {
+    if ((e.key==='Enter'||e.key===',') && this.value.trim()) {
       e.preventDefault();
       tags.push(this.value.trim());
       this.value = '';
@@ -643,67 +750,263 @@ function makeTagInput(wrapId, inputId, hiddenId) {
   });
   wrap.addEventListener('click', () => inp.focus());
 }
+makeTagInput('tw-prosp','ti-prosp','f-prosp');
+makeTagInput('tw-otras','ti-otras','f-otras');
+makeTagInput('tw-comp','ti-comp','f-comp');
 
-makeTagInput('tw-canales', 'ti-canales', 'f-canales');
-makeTagInput('tw-comp', 'ti-comp', 'f-comp');
-
-function selPricing(el) {
-  document.querySelectorAll('.pc').forEach(c => c.classList.remove('sel'));
-  el.classList.add('sel');
-  document.getElementById('f-pricing').value = el.dataset.v;
-  document.getElementById('e-pricing').style.display = 'none';
-  updateProgress();
-}
-
+/* ── CHAR COUNT ── */
 function countChars(fieldId, countId) {
   const v = document.getElementById(fieldId).value.length;
-  document.getElementById(countId).textContent = v + ' / 600';
+  document.getElementById(countId).textContent = v + ' / 500';
 }
 
+/* ── PROGRESS ── */
 function updateProgress() {
-  const fields = ['f-url','f-producto','f-paises','f-canales','f-pricing','f-comp','f-problema','f-resultado'];
-  const filled = fields.filter(id => document.getElementById(id).value.trim() !== '').length;
-  const pct = Math.round((filled / fields.length) * 100);
+  const checks = [
+    document.getElementById('f-url').value.trim(),
+    getMultiValues('producto-input').join(''),
+    getMultiValues('pais-input').join(''),
+    document.getElementById('f-canales').value.trim(),
+    document.getElementById('f-pricing').value,
+    document.getElementById('f-prosp').value.trim() || document.getElementById('f-otras').value.trim(),
+    document.getElementById('f-problema').value.trim(),
+    document.getElementById('f-resultado').value.trim(),
+    document.getElementById('f-comp').value.trim(),
+  ];
+  const filled = checks.filter(v => v !== '').length;
+  const pct = Math.round((filled / checks.length) * 100);
   document.getElementById('prog').style.width = pct + '%';
   document.getElementById('prog-label').textContent = pct + '%';
 }
 
+/* ── MATRIZ ROLES ── */
+const rolesSeleccionados = new Set();
+
+function toggleRol(el) {
+  const rol = el.dataset.rol;
+  if (rolesSeleccionados.has(rol)) {
+    rolesSeleccionados.delete(rol);
+    el.classList.remove('sel');
+    const card = document.getElementById('mc-' + sanitizeId(rol));
+    if (card) card.remove();
+  } else {
+    rolesSeleccionados.add(rol);
+    el.classList.add('sel');
+    crearMatrizCard(rol);
+  }
+  syncMatriz();
+}
+
+function sanitizeId(str) {
+  return str.replace(/[^a-zA-Z0-9]/g, '_');
+}
+
+function crearMatrizCard(rol) {
+  const container = document.getElementById('matriz-cards');
+  const id = sanitizeId(rol);
+  const card = document.createElement('div');
+  card.className = 'matriz-card';
+  card.id = 'mc-' + id;
+  card.innerHTML = `
+    <div class="matriz-rol-hdr" onclick="toggleMatrizCard('${id}')">
+      <span class="matriz-rol-name">${rol}</span>
+      <span class="chevron open" id="chv-${id}">▾</span>
+    </div>
+    <div class="matriz-rol-body open" id="mb-${id}">
+      <div class="matriz-cols">
+        <div class="m-field field">
+          <label>Problema <span class="tag-p">Problema</span></label>
+          <textarea id="mp-${id}" placeholder="¿Cuál es el principal problema que enfrenta este rol?" oninput="syncMatriz()"></textarea>
+        </div>
+        <div class="m-field field">
+          <label>Síntomas <span class="tag-s">Síntomas</span></label>
+          <textarea id="ms-${id}" placeholder="¿Qué señales visibles tiene el problema?" oninput="syncMatriz()"></textarea>
+        </div>
+        <div class="m-field field">
+          <label>Impacto negativo <span class="tag-i">Impacto</span></label>
+          <textarea id="mi-${id}" placeholder="¿Qué consecuencias tiene si no se resuelve?" oninput="syncMatriz()"></textarea>
+        </div>
+        <div class="m-field field">
+          <label>Solución propuesta <span class="tag-sol">Solución</span></label>
+          <textarea id="mso-${id}" placeholder="¿Cómo resuelve tu producto o servicio este problema?" oninput="syncMatriz()"></textarea>
+        </div>
+      </div>
+      <div class="m-field field" style="margin-top:10px">
+        <label>Resultados cuantitativos esperados <span class="tag-r">Resultados</span></label>
+        <textarea id="mr-${id}" style="min-height:60px" placeholder="Ej: Reducción del 30% en ciclo de ventas, aumento de conversión del 20%..." oninput="syncMatriz()"></textarea>
+      </div>
+      <div class="ai-fill-row">
+        <span class="ai-fill-hint">La IA puede completar esta fila basándose en tu información de empresa y producto.</span>
+        <button class="btn-ai-fill" id="btn-ai-${id}" onclick="aiCompletarFila('${rol}','${id}')">
+          <div class="ai-fill-spinner" id="aifs-${id}"></div>
+          ✦ Completar con IA
+        </button>
+      </div>
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+function toggleMatrizCard(id) {
+  const body = document.getElementById('mb-' + id);
+  const chv = document.getElementById('chv-' + id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  body.style.display = isOpen ? 'none' : 'block';
+  chv.classList.toggle('open', !isOpen);
+}
+
+function syncMatriz() {
+  const data = {};
+  rolesSeleccionados.forEach(rol => {
+    const id = sanitizeId(rol);
+    data[rol] = {
+      problema: (document.getElementById('mp-'+id)||{}).value||'',
+      sintomas: (document.getElementById('ms-'+id)||{}).value||'',
+      impacto: (document.getElementById('mi-'+id)||{}).value||'',
+      solucion: (document.getElementById('mso-'+id)||{}).value||'',
+      resultados: (document.getElementById('mr-'+id)||{}).value||''
+    };
+  });
+  document.getElementById('f-matriz').value = JSON.stringify(data);
+}
+
+/* ── AI COMPLETAR FILA ── */
+async function aiCompletarFila(rol, id) {
+  const btn = document.getElementById('btn-ai-' + id);
+  const spinner = document.getElementById('aifs-' + id);
+  btn.classList.add('loading');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+
+  const empresa = {
+    url: document.getElementById('f-url').value,
+    productos: getMultiValues('producto-input').join(', '),
+    paises: getMultiValues('pais-input').join(', '),
+    vendio: document.getElementById('f-vendio').value,
+    canales: document.getElementById('f-canales').value,
+    pricing: document.getElementById('f-pricing').value,
+    herr_prosp: document.getElementById('f-prosp').value,
+    herr_otras: document.getElementById('f-otras').value,
+    sintomas_gral: document.getElementById('f-sintomas').value,
+    problema_gral: document.getElementById('f-problema').value,
+    impacto_gral: document.getElementById('f-impacto').value,
+    resultado_gral: document.getElementById('f-resultado').value,
+    competidores: document.getElementById('f-comp').value,
+  };
+
+  const prompt = `Eres un experto en revenue operations y marketing B2B. 
+Tu tarea es completar la matriz de inteligencia comercial para el rol: "${rol}"
+
+Información de la empresa:
+- URL: ${empresa.url}
+- Productos/Servicios: ${empresa.productos}
+- Países: ${empresa.paises}
+- Ya vendieron a: ${empresa.vendio}
+- Canales de venta: ${empresa.canales}
+- Pricing: ${empresa.pricing}
+- Herramientas de prospección: ${empresa.herr_prosp}
+- Otras herramientas: ${empresa.herr_otras}
+- Síntomas generales del cliente: ${empresa.sintomas_gral}
+- Problema raíz general: ${empresa.problema_gral}
+- Impacto general: ${empresa.impacto_gral}
+- Resultado esperado general: ${empresa.resultado_gral}
+- Competidores: ${empresa.competidores}
+
+Genera los 5 campos de la matriz para el rol "${rol}". Escribe de forma concisa, con bullets cortos, en español neutro (sin localismos). Responde SOLO en JSON con este formato exacto, sin backticks ni markdown:
+{
+  "problema": "...",
+  "sintomas": "...",
+  "impacto": "...",
+  "solucion": "...",
+  "resultados": "..."
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content[0].text.trim().replace(/```json|```/g, '');
+    const parsed = JSON.parse(text);
+    if (parsed.problema) document.getElementById('mp-'+id).value = parsed.problema;
+    if (parsed.sintomas) document.getElementById('ms-'+id).value = parsed.sintomas;
+    if (parsed.impacto) document.getElementById('mi-'+id).value = parsed.impacto;
+    if (parsed.solucion) document.getElementById('mso-'+id).value = parsed.solucion;
+    if (parsed.resultados) document.getElementById('mr-'+id).value = parsed.resultados;
+    syncMatriz();
+  } catch(e) {
+    alert('Error al consultar la IA. Verifica tu conexión.');
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  }
+}
+
+/* ── AI COMPLETAR TODO ── */
+async function aiCompletarTodo() {
+  if (rolesSeleccionados.size === 0) {
+    alert('Primero selecciona al menos un rol en la sección de roles objetivo.');
+    return;
+  }
+  const btn = document.getElementById('btn-ai-all');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  for (const rol of rolesSeleccionados) {
+    await aiCompletarFila(rol, sanitizeId(rol));
+  }
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
+
+/* ── EDIT MODE ── */
+function cancelEdit() {
+  document.getElementById('edit-banner').style.display = 'none';
+}
+
+/* ── VALIDATE ── */
 function validate() {
   let ok = true;
   const url = document.getElementById('f-url').value.trim();
   const eu = document.getElementById('e-url');
-  if (!url || !url.startsWith('http')) {
-    eu.style.display = 'block'; ok = false;
-  } else {
-    eu.style.display = 'none';
-  }
+  if (!url || !url.startsWith('http')) { eu.style.display='block'; ok=false; } else { eu.style.display='none'; }
   const pr = document.getElementById('f-pricing').value;
   const ep = document.getElementById('e-pricing');
-  if (!pr) {
-    ep.style.display = 'block'; ok = false;
-  } else {
-    ep.style.display = 'none';
-  }
+  if (!pr) { ep.style.display='block'; ok=false; } else { ep.style.display='none'; }
   return ok;
 }
 
+/* ── SUBMIT ── */
 async function handleSubmit() {
   if (!validate()) return;
   const btn = document.getElementById('btn-send');
   btn.disabled = true;
   btn.classList.add('loading');
-  btn.childNodes[btn.childNodes.length - 1].textContent = ' Enviando...';
+  btn.lastChild.textContent = ' Enviando...';
 
   const data = {
     timestamp: new Date().toISOString(),
     url: document.getElementById('f-url').value.trim(),
-    producto: document.getElementById('f-producto').value.trim(),
-    paises: document.getElementById('f-paises').value.trim(),
+    productos: getMultiValues('producto-input').join(' | '),
+    paises: getMultiValues('pais-input').join(' | '),
+    vendio: document.getElementById('f-vendio').value.trim(),
     canales: document.getElementById('f-canales').value,
     pricing: document.getElementById('f-pricing').value,
-    competidores: document.getElementById('f-comp').value,
+    herramientas_prosp: document.getElementById('f-prosp').value,
+    herramientas_otras: document.getElementById('f-otras').value,
+    sintomas: document.getElementById('f-sintomas').value.trim(),
     problema: document.getElementById('f-problema').value.trim(),
-    resultado: document.getElementById('f-resultado').value.trim()
+    impacto: document.getElementById('f-impacto').value.trim(),
+    resultado: document.getElementById('f-resultado').value.trim(),
+    competidores: document.getElementById('f-comp').value,
+    matriz: document.getElementById('f-matriz').value,
   };
 
   try {
@@ -713,17 +1016,25 @@ async function handleSubmit() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    btn.classList.remove('loading');
-    btn.childNodes[btn.childNodes.length - 1].textContent = ' Enviado';
-    document.getElementById('toast').style.display = 'block';
-    document.getElementById('toast').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } catch(err) {
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+    toast.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    btn.lastChild.textContent = ' Enviado';
+    document.getElementById('edit-banner').style.display = 'flex';
+  } catch(e) {
     btn.disabled = false;
     btn.classList.remove('loading');
-    btn.childNodes[btn.childNodes.length - 1].textContent = ' Enviar información';
-    alert('Error al conectar. Verifica tu conexión e intenta de nuevo.');
+    btn.lastChild.textContent = ' Enviar información';
+    alert('Error al enviar. Verifica tu conexión e intenta de nuevo.');
   }
 }
+
+/* ── INIT ── */
+// Inicializar primera fila de multi-inputs con listener
+document.querySelectorAll('.producto-input, .pais-input').forEach(i => {
+  i.addEventListener('input', updateProgress);
+});
+updateProgress();
 </script>
 </body>
 </html>
