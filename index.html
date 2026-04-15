@@ -1,2059 +1,1855 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Market Intelligence — Predictable.ai by VANAR</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>predictable.ai — Revenue OS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-/* ═══════════════════════════════════════════
-   TIPOGRAFÍA APPLE — SF Pro / System Font Stack
-═══════════════════════════════════════════ */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  :root {
+    --bg: #070C18;
+    --surface: #0D1424;
+    --surface2: #131D30;
+    --surface3: #1A2540;
+    --border: #1E2D47;
+    --border2: #243355;
+    --text: #E8EDF8;
+    --text2: #8A9BBF;
+    --text3: #4E5F7A;
+    --blue: #4F8EF7;
+    --blue-dim: rgba(79,142,247,0.12);
+    --purple: #7C5CFC;
+    --purple-dim: rgba(124,92,252,0.12);
+    --green: #10B981;
+    --green-dim: rgba(16,185,129,0.12);
+    --amber: #F59E0B;
+    --red: #EF4444;
+    --gradient-blue: linear-gradient(135deg, #4F8EF7, #2563EB);
+    --gradient-purple: linear-gradient(135deg, #7C5CFC, #5B21B6);
+    --gradient-green: linear-gradient(135deg, #10B981, #059669);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Inter','Segoe UI',system-ui,sans-serif; min-height:100vh; display:flex; overflow:hidden; }
 
-:root {
-  /* Apple System Font Stack */
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-          "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px; min-width:240px; background:var(--surface); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; height:100vh; position:fixed; left:0; top:0; z-index:100;
+  }
+  .sidebar-logo {
+    padding:20px 20px 16px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo-icon {
+    width:32px; height:32px; border-radius:8px; background:var(--gradient-blue);
+    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; color:#fff;
+  }
+  .logo-text { font-size:16px; font-weight:700; color:var(--text); }
+  .logo-sub { font-size:10px; color:var(--text3); letter-spacing:.5px; text-transform:uppercase; margin-top:1px; }
+  .sidebar-section { padding:16px 12px 4px; font-size:10px; color:var(--text3); letter-spacing:.8px; text-transform:uppercase; font-weight:600; }
+  .nav-item {
+    display:flex; align-items:center; gap:10px; padding:9px 12px; margin:1px 8px; border-radius:8px;
+    cursor:pointer; font-size:13px; color:var(--text2); transition:.15s; user-select:none;
+  }
+  .nav-item:hover { background:var(--surface2); color:var(--text); }
+  .nav-item.active { background:var(--blue-dim); color:var(--blue); }
+  .nav-item.active.m2 { background:var(--purple-dim); color:var(--purple); }
+  .nav-item.active.m3 { background:var(--green-dim); color:var(--green); }
+  .nav-icon { width:16px; height:16px; flex-shrink:0; }
+  .nav-badge {
+    margin-left:auto; font-size:10px; padding:2px 6px; border-radius:99px; font-weight:600;
+    background:var(--blue-dim); color:var(--blue);
+  }
+  .nav-badge.purple { background:var(--purple-dim); color:var(--purple); }
+  .nav-badge.green { background:var(--green-dim); color:var(--green); }
+  .sidebar-footer { margin-top:auto; padding:16px; border-top:1px solid var(--border); }
+  .user-pill {
+    display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px;
+    cursor:pointer; transition:.15s;
+  }
+  .user-pill:hover { background:var(--surface2); }
+  .avatar { width:30px; height:30px; border-radius:50%; background:var(--gradient-blue); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+  .user-name { font-size:13px; font-weight:600; }
+  .user-role { font-size:11px; color:var(--text3); }
 
-  /* Color palette — corporate navy + blue */
-  --navy:    #0A1628;
-  --navy2:   #0E1E38;
-  --navy3:   #132344;
-  --navy4:   #1A2D52;
-  --blue:    #1746C0;
-  --blue2:   #1F56D6;
-  --blue3:   #2E69F0;
-  --blue-lt: #EBF1FF;
-  --blue-lt2:#D4E3FF;
-  --blue-lt3:#B8CCFF;
+  /* ── MAIN ── */
+  .main { margin-left:240px; flex:1; height:100vh; overflow-y:auto; display:flex; flex-direction:column; }
+  .topbar {
+    padding:16px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center;
+    gap:16px; background:var(--bg); position:sticky; top:0; z-index:50;
+  }
+  .topbar-title { font-size:18px; font-weight:700; }
+  .topbar-sub { font-size:12px; color:var(--text3); margin-top:2px; }
+  .topbar-actions { margin-left:auto; display:flex; gap:8px; }
+  .btn {
+    padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;
+    border:none; transition:.15s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--border); }
+  .btn-ghost:hover { border-color:var(--border2); color:var(--text); }
+  .btn-primary { background:var(--gradient-blue); color:#fff; }
+  .btn-primary:hover { opacity:.9; }
+  .btn-purple { background:var(--gradient-purple); color:#fff; }
+  .btn-purple:hover { opacity:.9; }
+  .btn-green { background:var(--gradient-green); color:#fff; }
+  .btn-green:hover { opacity:.9; }
+  .btn-sm { padding:6px 12px; font-size:12px; }
 
-  --white:  #FFFFFF;
-  --bg:     #F0F3FA;
-  --surf:   #FFFFFF;
-  --surf2:  #F7F9FD;
+  /* ── PAGE CONTENT ── */
+  .page { padding:28px; display:none; flex-direction:column; gap:24px; }
+  .page.active { display:flex; }
 
-  --bdr:    #E2E8F5;
-  --bdr2:   #CAD5EE;
-  --bdr3:   #B0C0E0;
+  /* ── CARDS ── */
+  .card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; flex:1;
+  }
+  .card-title { font-size:13px; font-weight:600; color:var(--text2); margin-bottom:4px; }
+  .card-value { font-size:28px; font-weight:700; }
+  .card-delta { font-size:12px; margin-top:4px; }
+  .delta-up { color:var(--green); }
+  .delta-down { color:var(--red); }
+  .row { display:flex; gap:16px; }
+  .col { display:flex; flex-direction:column; gap:16px; flex:1; }
 
-  --text:   #09111E;
-  --text2:  #1E2D48;
-  --muted:  #4A5E82;
-  --sub:    #7A8FAE;
-  --hint:   #A0B0CC;
+  /* ── MODULE HEADER ── */
+  .module-header {
+    padding:24px 28px; background:var(--surface); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:16px;
+  }
+  .module-badge {
+    padding:6px 14px; border-radius:99px; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  }
+  .badge-blue { background:var(--blue-dim); color:var(--blue); }
+  .badge-purple { background:var(--purple-dim); color:var(--purple); }
+  .badge-green { background:var(--green-dim); color:var(--green); }
 
-  --gold:   #B07D20;
-  --gold2:  #D4A030;
+  /* ── STAT GRID ── */
+  .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 20px;
+  }
+  .stat-label { font-size:12px; color:var(--text3); font-weight:500; margin-bottom:6px; }
+  .stat-val { font-size:26px; font-weight:800; line-height:1; }
+  .stat-sub { font-size:11px; color:var(--text3); margin-top:6px; }
 
-  --ok:     #0A7A5A;
-  --ok-bg:  #E3F5EE;
-  --ok-bdr: rgba(10,122,90,.18);
+  /* ── CHART CARD ── */
+  .chart-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px;
+  }
+  .chart-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .chart-title { font-size:14px; font-weight:700; }
+  .chart-wrap { position:relative; height:220px; }
 
-  --warn:   #895600;
-  --warn-bg:#FDF5DF;
-  --warn-bdr:rgba(137,86,0,.18);
+  /* ── TABLE ── */
+  .table-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .table-head { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  table { width:100%; border-collapse:collapse; }
+  th { padding:10px 16px; font-size:11px; font-weight:600; color:var(--text3); text-align:left; letter-spacing:.5px; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  td { padding:12px 16px; font-size:13px; border-bottom:1px solid var(--border); color:var(--text); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--surface2); }
+  .pill { display:inline-flex; align-items:center; padding:3px 10px; border-radius:99px; font-size:11px; font-weight:600; }
+  .pill-blue { background:var(--blue-dim); color:var(--blue); }
+  .pill-purple { background:var(--purple-dim); color:var(--purple); }
+  .pill-green { background:var(--green-dim); color:var(--green); }
+  .pill-amber { background:rgba(245,158,11,.12); color:var(--amber); }
+  .pill-red { background:rgba(239,68,68,.12); color:var(--red); }
+  .pill-gray { background:var(--surface3); color:var(--text3); }
 
-  --err:    #B02818;
-  --err-bg: #FDF0EC;
-  --err-bdr:rgba(176,40,24,.18);
+  /* ── FORM ── */
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .form-group { display:flex; flex-direction:column; gap:6px; }
+  .form-group.full { grid-column:1/-1; }
+  label { font-size:12px; font-weight:600; color:var(--text2); }
+  input, select, textarea {
+    background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    color:var(--text); padding:10px 12px; font-size:13px; outline:none; font-family:inherit;
+    transition:.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(79,142,247,.15); }
+  select option { background:var(--surface2); }
+  textarea { resize:vertical; min-height:80px; }
 
-  --sb-w:   252px;
-  --hh:     52px;
+  /* ── STEPS ── */
+  .steps { display:flex; gap:0; margin-bottom:24px; }
+  .step {
+    flex:1; padding:12px 16px; background:var(--surface); border:1px solid var(--border);
+    display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:var(--text3);
+    position:relative; cursor:pointer;
+  }
+  .step:not(:last-child)::after {
+    content:'›'; position:absolute; right:-8px; top:50%; transform:translateY(-50%);
+    color:var(--border2); font-size:18px; z-index:1;
+  }
+  .step:first-child { border-radius:var(--radius) 0 0 var(--radius); }
+  .step:last-child { border-radius:0 var(--radius) var(--radius) 0; }
+  .step.active { background:var(--blue-dim); border-color:var(--blue); color:var(--blue); }
+  .step.done { background:var(--green-dim); border-color:var(--green); color:var(--green); }
+  .step-num {
+    width:20px; height:20px; border-radius:50%; background:var(--surface3);
+    display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0;
+  }
+  .step.active .step-num { background:var(--blue); color:#fff; }
+  .step.done .step-num { background:var(--green); color:#fff; }
 
-  --r:      8px;
-  --r-lg:   12px;
-  --r-xl:   16px;
-  --r-2xl:  20px;
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .insight-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px; display:flex; flex-direction:column; gap:10px;
+  }
+  .insight-icon { font-size:22px; }
+  .insight-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text3); }
+  .insight-title { font-size:14px; font-weight:700; line-height:1.3; }
+  .insight-body { font-size:12px; color:var(--text2); line-height:1.6; }
+  .insight-action {
+    margin-top:4px; padding:8px 12px; border-radius:var(--radius-sm); font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.5px; cursor:pointer; border:none; transition:.15s;
+  }
+  .action-blue { background:var(--blue-dim); color:var(--blue); }
+  .action-blue:hover { background:rgba(79,142,247,.2); }
 
-  --shadow-sm: 0 1px 3px rgba(9,17,30,.06), 0 1px 2px rgba(9,17,30,.04);
-  --shadow:    0 2px 8px rgba(9,17,30,.08), 0 1px 3px rgba(9,17,30,.05);
-  --shadow-lg: 0 8px 24px rgba(9,17,30,.10), 0 2px 6px rgba(9,17,30,.06);
-}
+  /* ── PIPELINE ── */
+  .pipeline { display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; }
+  .pipeline-col {
+    min-width:200px; background:var(--surface2); border-radius:var(--radius);
+    border:1px solid var(--border); overflow:hidden;
+  }
+  .pipeline-header { padding:10px 14px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; }
+  .pipeline-card {
+    margin:8px; padding:10px 12px; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-sm); cursor:pointer; transition:.15s;
+  }
+  .pipeline-card:hover { border-color:var(--blue); }
+  .pipeline-card-name { font-size:12px; font-weight:600; }
+  .pipeline-card-sub { font-size:11px; color:var(--text3); margin-top:3px; }
+  .pipeline-card-val { font-size:13px; font-weight:700; margin-top:6px; color:var(--blue); }
 
-html, body {
-  height: 100%;
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 13px;
-  line-height: 1.5;
-  overflow: hidden;
-}
+  /* ── MEETING UI ── */
+  .meeting-layout { display:grid; grid-template-columns:1fr 320px; gap:16px; height:calc(100vh - 200px); }
+  .meeting-main { display:flex; flex-direction:column; gap:12px; }
+  .meeting-video {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px;
+    min-height:300px;
+  }
+  .meeting-controls { display:flex; gap:8px; justify-content:center; }
+  .ctrl-btn {
+    width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:16px; transition:.15s;
+    background:var(--surface2); color:var(--text); border:1px solid var(--border);
+  }
+  .ctrl-btn:hover { background:var(--surface3); }
+  .ctrl-btn.danger { background:rgba(239,68,68,.15); color:var(--red); border-color:rgba(239,68,68,.3); }
+  .ctrl-btn.active { background:var(--blue-dim); color:var(--blue); border-color:var(--blue); }
+  .ai-panel { display:flex; flex-direction:column; gap:12px; overflow-y:auto; }
+  .ai-suggestion {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px;
+  }
+  .ai-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+  .ai-text { font-size:12px; color:var(--text2); line-height:1.6; }
+  .ai-copy { font-size:11px; padding:6px 10px; border-radius:6px; cursor:pointer; border:none; margin-top:8px; background:var(--surface3); color:var(--text2); }
+  .ai-copy:hover { background:var(--border); color:var(--text); }
 
-/* ═══════════════════════════════════════════
-   LAYOUT
-═══════════════════════════════════════════ */
-.app { display: flex; height: 100vh; }
+  /* ── SCORE BAR ── */
+  .score-row { display:flex; flex-direction:column; gap:4px; }
+  .score-label { display:flex; justify-content:space-between; font-size:12px; }
+  .score-bar { height:6px; background:var(--surface3); border-radius:3px; overflow:hidden; }
+  .score-fill { height:100%; border-radius:3px; transition:width .8s ease; }
 
-/* ═══════════════════════════════════════════
-   SIDEBAR
-═══════════════════════════════════════════ */
-.sidebar {
-  width: var(--sb-w);
-  flex-shrink: 0;
-  background: var(--navy);
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid rgba(255,255,255,.05);
-  position: relative;
-  z-index: 20;
-}
+  /* ── TABS ── */
+  .tabs { display:flex; gap:2px; background:var(--surface2); padding:4px; border-radius:10px; width:fit-content; }
+  .tab { padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; color:var(--text3); transition:.15s; }
+  .tab.active { background:var(--surface); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,.3); }
 
-/* Brand */
-.sb-brand {
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  flex-shrink: 0;
-}
-.sb-logo-row {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 13px;
-}
-.sb-mark {
-  width: 28px; height: 28px;
-  border-radius: 7px;
-  background: var(--blue2);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(31,86,214,.4);
-}
-.sb-mark svg { width: 13px; height: 13px; }
-.sb-brand-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: -.1px;
-}
-.sb-brand-by {
-  font-size: 9px;
-  color: rgba(255,255,255,.3);
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  margin-top: 1px;
-}
-.sb-workspace {
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.07);
-  border-radius: var(--r);
-  padding: 8px 10px;
-}
-.sb-ws-label {
-  font-size: 9px;
-  color: rgba(255,255,255,.25);
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-.sb-ws-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(255,255,255,.65);
-}
+  /* ── EMPTY STATE ── */
+  .empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:60px 20px; color:var(--text3); text-align:center; }
+  .empty-icon { font-size:40px; opacity:.4; }
+  .empty-title { font-size:15px; font-weight:700; color:var(--text2); }
+  .empty-sub { font-size:13px; max-width:340px; line-height:1.6; }
 
-/* Nav */
-.sb-nav {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 10px 0;
-  scrollbar-width: none;
-}
-.sb-nav::-webkit-scrollbar { display: none; }
+  /* ── PROGRESS RING ── */
+  .ring-wrap { position:relative; width:80px; height:80px; }
+  .ring-wrap svg { transform:rotate(-90deg); }
+  .ring-val { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:16px; font-weight:800; }
 
-.sb-section-label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.2);
-  padding: 10px 7px 5px;
-}
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
 
-.sb-item {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 7px 8px;
-  border-radius: var(--r);
-  cursor: pointer;
-  transition: background .12s;
-  margin-bottom: 1px;
-  border: 1px solid transparent;
-  user-select: none;
-}
-.sb-item:hover { background: rgba(255,255,255,.05); }
-.sb-item.active {
-  background: rgba(31,86,214,.22);
-  border-color: rgba(46,105,240,.25);
-}
-.sb-item.disabled {
-  opacity: .38;
-  cursor: default;
-  pointer-events: none;
-}
+  /* ── TOGGLE ── */
+  .toggle-wrap { display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .toggle { width:36px; height:20px; background:var(--surface3); border-radius:10px; position:relative; transition:.2s; }
+  .toggle.on { background:var(--blue); }
+  .toggle::after { content:''; position:absolute; top:3px; left:3px; width:14px; height:14px; background:#fff; border-radius:50%; transition:.2s; }
+  .toggle.on::after { left:19px; }
 
-.sb-icon {
-  width: 26px; height: 26px;
-  border-radius: 6px;
-  background: rgba(255,255,255,.07);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-  transition: background .12s;
-}
-.sb-item.active .sb-icon { background: var(--blue2); }
+  /* ── NOTIFICATION DOT ── */
+  .notif { width:8px; height:8px; border-radius:50%; background:var(--blue); }
 
-.sb-item-body { flex: 1; min-width: 0; }
-.sb-item-name {
-  font-size: 12px;
-  font-weight: 400;
-  color: rgba(255,255,255,.55);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
-}
-.sb-item.active .sb-item-name {
-  color: #fff;
-  font-weight: 500;
-}
-.sb-item-sub {
-  font-size: 10px;
-  color: rgba(255,255,255,.22);
-  margin-top: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+  /* ── MODULE INTRO ── */
+  .module-intro {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; display: flex; align-items: center; gap: 24px;
+  }
+  .module-intro-icon {
+    width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center;
+    justify-content: center; font-size: 28px; flex-shrink: 0;
+  }
+  .module-intro-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .module-intro-desc { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 600px; }
 
-.sb-tag {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: .3px;
-  padding: 2px 7px;
-  border-radius: 20px;
-  flex-shrink: 0;
-}
-.tag-live { background: rgba(46,105,240,.22); color: #7DAAFF; }
-.tag-soon { background: rgba(255,255,255,.07); color: rgba(255,255,255,.22); }
+  .divider { border:none; border-top:1px solid var(--border); }
 
-/* Footer */
-.sb-footer {
-  padding: 12px 12px;
-  border-top: 1px solid rgba(255,255,255,.06);
-  flex-shrink: 0;
-}
-.sb-progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
-}
-.sb-progress-header span { font-size: 10px; color: rgba(255,255,255,.3); }
-.sb-progress-header strong { font-size: 10px; color: var(--gold2); font-weight: 600; }
-.sb-progressbar {
-  height: 2px;
-  background: rgba(255,255,255,.07);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 11px;
-}
-.sb-progressbar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--blue3), var(--gold2));
-  border-radius: 2px;
-  width: 0%;
-  transition: width .4s cubic-bezier(.4,0,.2,1);
-}
-.sb-save-btn {
-  width: 100%;
-  padding: 8px 12px;
-  background: var(--blue2);
-  color: #fff;
-  border: none;
-  border-radius: var(--r);
-  font-size: 12px;
-  font-weight: 500;
-  font-family: var(--font);
-  cursor: pointer;
-  transition: background .15s, box-shadow .15s;
-  letter-spacing: -.1px;
-  box-shadow: 0 1px 4px rgba(31,86,214,.35);
-}
-.sb-save-btn:hover { background: var(--blue3); box-shadow: 0 2px 8px rgba(31,86,214,.45); }
-.sb-save-btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+  /* Animated pulse */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .pulse { animation: pulse 2s ease-in-out infinite; }
 
-/* ═══════════════════════════════════════════
-   TOPBAR
-═══════════════════════════════════════════ */
-.topbar {
-  height: var(--hh);
-  flex-shrink: 0;
-  background: var(--surf);
-  border-bottom: 1px solid var(--bdr);
-  display: flex;
-  align-items: center;
-  padding: 0 28px;
-  gap: 14px;
-}
-.topbar-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  flex: 1;
-  letter-spacing: -.2px;
-}
-.topbar-status {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 11px;
-  border-radius: 20px;
-  background: var(--blue-lt);
-  border: 1px solid var(--blue-lt2);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--blue);
-}
-.live-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #22C88A;
-  animation: pulse 2s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-.topbar-pct {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--muted);
-}
-
-/* ═══════════════════════════════════════════
-   MAIN CONTENT
-═══════════════════════════════════════════ */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-
-.content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 28px 32px 80px;
-  scroll-behavior: smooth;
-}
-.content::-webkit-scrollbar { width: 4px; }
-.content::-webkit-scrollbar-track { background: transparent; }
-.content::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 4px; }
-
-/* ═══════════════════════════════════════════
-   HERO BANNER
-═══════════════════════════════════════════ */
-.hero-banner {
-  background: var(--navy2);
-  border-radius: var(--r-2xl);
-  padding: 26px 30px;
-  margin-bottom: 24px;
-  position: relative;
-  overflow: hidden;
-}
-.hero-banner::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1.5px;
-  background: linear-gradient(90deg, var(--blue3), var(--gold2), transparent);
-}
-.hero-banner::after {
-  content: '';
-  position: absolute;
-  top: -80px; right: -60px;
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(31,86,214,.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-.hero-eyebrow {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.28);
-  margin-bottom: 6px;
-}
-.hero-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: -.4px;
-  margin-bottom: 8px;
-}
-.hero-desc {
-  font-size: 13px;
-  color: rgba(255,255,255,.42);
-  line-height: 1.65;
-  max-width: 560px;
-  font-weight: 300;
-}
-.hero-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 14px;
-}
-.hero-chip {
-  padding: 4px 11px;
-  border-radius: 20px;
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.09);
-  font-size: 11px;
-  color: rgba(255,255,255,.38);
-  font-weight: 400;
-}
-
-/* ═══════════════════════════════════════════
-   SECTION HEADERS
-═══════════════════════════════════════════ */
-.sec-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 28px 0 14px;
-}
-.sec-number {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--navy);
-  color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-.sec-title {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.3px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.sec-line { flex: 1; height: 1px; background: var(--bdr); }
-
-/* ═══════════════════════════════════════════
-   CARDS
-═══════════════════════════════════════════ */
-.card {
-  background: var(--surf);
-  border: 1px solid var(--bdr);
-  border-radius: var(--r-xl);
-  padding: 22px 24px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-sm);
-}
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding-bottom: 14px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid var(--bdr);
-}
-.card-icon {
-  width: 28px; height: 28px;
-  border-radius: 7px;
-  background: var(--blue-lt);
-  border: 1px solid var(--blue-lt2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-.card-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text2);
-  flex: 1;
-  letter-spacing: -.1px;
-}
-.card-badge {
-  font-size: 10px;
-  font-weight: 500;
-  padding: 2px 9px;
-  border-radius: 20px;
-  background: var(--blue-lt);
-  color: var(--blue);
-  border: 1px solid var(--blue-lt2);
-}
-
-/* ═══════════════════════════════════════════
-   FORM FIELDS
-═══════════════════════════════════════════ */
-.field { margin-bottom: 18px; }
-.field:last-child { margin-bottom: 0; }
-
-.field > label {
-  display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text2);
-  margin-bottom: 5px;
-  letter-spacing: -.1px;
-}
-
-.field-hint {
-  font-size: 11px;
-  color: var(--sub);
-  margin-bottom: 7px;
-  line-height: 1.5;
-  font-style: italic;
-  font-weight: 300;
-}
-
-input[type="text"],
-input[type="url"],
-textarea {
-  width: 100%;
-  font-size: 13px;
-  font-family: var(--font);
-  padding: 9px 12px;
-  background: var(--bg);
-  border: 1px solid var(--bdr);
-  border-radius: var(--r);
-  color: var(--text);
-  outline: none;
-  transition: border-color .15s, box-shadow .15s, background .15s;
-  -webkit-appearance: none;
-}
-input::placeholder, textarea::placeholder { color: var(--hint); font-weight: 300; }
-input:hover, textarea:hover { border-color: var(--bdr2); }
-input:focus, textarea:focus {
-  border-color: var(--blue2);
-  background: var(--white);
-  box-shadow: 0 0 0 3px rgba(31,86,214,.08);
-}
-textarea {
-  resize: vertical;
-  min-height: 82px;
-  line-height: 1.6;
-}
-
-/* Grids */
-.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-
-/* Radio pills */
-.pill-group { display: flex; flex-wrap: wrap; gap: 7px; }
-.pill {
-  padding: 5px 14px;
-  border-radius: 20px;
-  border: 1.5px solid var(--bdr);
-  background: var(--bg);
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all .12s;
-  user-select: none;
-  font-family: var(--font);
-}
-.pill:hover { border-color: var(--bdr2); color: var(--text2); background: var(--surf); }
-.pill.on {
-  border-color: var(--blue2);
-  background: var(--blue-lt);
-  color: var(--blue);
-  font-weight: 500;
-}
-
-/* Tag input */
-.tagbox {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 6px 8px;
-  background: var(--bg);
-  border: 1px solid var(--bdr);
-  border-radius: var(--r);
-  min-height: 40px;
-  cursor: text;
-  transition: border-color .15s, box-shadow .15s;
-}
-.tagbox:focus-within {
-  border-color: var(--blue2);
-  background: var(--white);
-  box-shadow: 0 0 0 3px rgba(31,86,214,.08);
-}
-.tag-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 9px;
-  background: var(--blue-lt);
-  border: 1px solid var(--blue-lt2);
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--blue);
-}
-.tag-chip button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--blue);
-  opacity: .5;
-  padding: 0;
-  line-height: 1;
-  font-family: var(--font);
-}
-.tag-chip button:hover { opacity: 1; }
-.tagbox input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 12px;
-  font-family: var(--font);
-  color: var(--text);
-  min-width: 90px;
-  flex: 1;
-  padding: 2px 0;
-}
-.tagbox input::placeholder { color: var(--hint); font-weight: 300; }
-
-/* Multi-input */
-.multiblock { display: flex; flex-direction: column; gap: 8px; }
-.multirow { display: flex; align-items: center; gap: 8px; }
-.multirow input { flex: 1; }
-.btn-rm {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  border: 1px solid var(--bdr);
-  background: var(--white);
-  color: var(--sub);
-  font-size: 15px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: all .12s;
-}
-.btn-rm:hover { border-color: var(--err-bdr); color: var(--err); background: var(--err-bg); }
-.btn-add-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  background: var(--blue-lt);
-  border: 1px solid var(--blue-lt2);
-  border-radius: var(--r);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--blue);
-  cursor: pointer;
-  transition: all .12s;
-  font-family: var(--font);
-  margin-top: 6px;
-}
-.btn-add-row:hover { background: var(--blue-lt2); }
-
-.divider { height: 1px; background: var(--bdr); margin: 18px 0; }
-
-/* ═══════════════════════════════════════════
-   MATRIZ DE ROLES
-═══════════════════════════════════════════ */
-.rol-selector { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 6px; }
-.rol-pill {
-  padding: 5px 13px;
-  border-radius: 20px;
-  border: 1.5px solid var(--bdr);
-  background: var(--bg);
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all .12s;
-  user-select: none;
-  font-family: var(--font);
-}
-.rol-pill:hover { border-color: var(--bdr2); color: var(--text2); background: var(--surf); }
-.rol-pill.on {
-  border-color: var(--blue2);
-  background: var(--blue-lt);
-  color: var(--blue);
-  font-weight: 500;
-}
-
-/* Matriz card */
-.mcard {
-  background: var(--surf);
-  border: 1px solid var(--bdr);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  margin-bottom: 10px;
-  box-shadow: var(--shadow-sm);
-}
-.mcard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 13px 18px;
-  background: var(--navy3);
-  cursor: pointer;
-  transition: background .12s;
-}
-.mcard-header:hover { background: var(--navy4); }
-.mcard-left { display: flex; align-items: center; gap: 11px; }
-.mcard-avatar {
-  width: 30px; height: 30px;
-  border-radius: 7px;
-  background: rgba(255,255,255,.1);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,.55);
-  flex-shrink: 0;
-  letter-spacing: .5px;
-}
-.mcard-role { font-size: 13px; font-weight: 500; color: #fff; letter-spacing: -.1px; }
-.mcard-status { font-size: 11px; color: rgba(255,255,255,.3); margin-top: 1px; }
-.mcard-chevron {
-  font-size: 10px;
-  color: rgba(255,255,255,.3);
-  transition: transform .2s;
-}
-.mcard-chevron.open { transform: rotate(180deg); }
-
-.mcard-body { padding: 18px; display: none; }
-.mcard-body.open { display: block; }
-
-/* Matriz grid */
-.matriz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-
-.mfield {}
-.mfield-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 6px;
-}
-.mfield-badge {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .4px;
-  padding: 2px 8px;
-  border-radius: 20px;
-}
-.mb-problema { background: #FEF3DC; color: #7A4800; }
-.mb-sintomas { background: var(--blue-lt); color: var(--blue); }
-.mb-impacto  { background: var(--err-bg); color: var(--err); }
-.mb-solucion { background: #F0EEFF; color: #4530A0; }
-.mb-resultado{ background: var(--ok-bg); color: var(--ok); }
-.mfield-title { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: -.1px; }
-
-.mfield textarea {
-  width: 100%;
-  font-size: 12px;
-  font-family: var(--font);
-  padding: 9px 12px;
-  min-height: 88px;
-  background: var(--bg);
-  border: 1px solid var(--bdr);
-  border-radius: var(--r);
-  color: var(--text);
-  outline: none;
-  resize: vertical;
-  line-height: 1.6;
-  transition: border-color .15s, box-shadow .15s, background .15s;
-}
-.mfield textarea::placeholder { color: var(--hint); font-weight: 300; font-size: 11px; }
-.mfield textarea:focus {
-  border-color: var(--blue2);
-  background: var(--white);
-  box-shadow: 0 0 0 3px rgba(31,86,214,.08);
-}
-
-/* ═══════════════════════════════════════════
-   AI FEEDBACK PANEL — Redesigned
-═══════════════════════════════════════════ */
-.ai-panel {
-  margin-top: 7px;
-  border-radius: var(--r);
-  overflow: hidden;
-  border: 1px solid var(--blue-lt2);
-  display: none;
-  animation: slidedown .18s ease;
-}
-.ai-panel.visible { display: block; }
-@keyframes slidedown { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
-
-.ai-panel-top {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 11px;
-  background: var(--blue-lt);
-  border-bottom: 1px solid var(--blue-lt2);
-}
-.ai-icon-star { font-size: 11px; }
-.ai-label { font-size: 10px; font-weight: 600; color: var(--blue); letter-spacing: .2px; flex: 1; }
-.ai-thinking-dots {
-  display: flex;
-  gap: 3px;
-  align-items: center;
-}
-.ai-thinking-dots span {
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  background: var(--blue);
-  animation: blink 1.1s ease-in-out infinite;
-  display: inline-block;
-}
-.ai-thinking-dots span:nth-child(2) { animation-delay: .18s; }
-.ai-thinking-dots span:nth-child(3) { animation-delay: .36s; }
-@keyframes blink { 0%,100%{opacity:.15} 50%{opacity:1} }
-
-.ai-panel-body {
-  padding: 11px 13px;
-  background: var(--white);
-}
-
-/* Score bar */
-.ai-score-row {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 8px;
-}
-.ai-score-track {
-  flex: 1;
-  height: 4px;
-  background: var(--bdr);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.ai-score-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width .5s cubic-bezier(.4,0,.2,1);
-}
-.score-lo .ai-score-fill { background: var(--err); }
-.score-mid .ai-score-fill { background: var(--warn); }
-.score-hi .ai-score-fill { background: var(--ok); }
-
-.ai-score-label {
-  font-size: 11px;
-  font-weight: 700;
-  min-width: 75px;
-  text-align: right;
-  letter-spacing: -.1px;
-}
-.score-lo .ai-score-label { color: var(--err); }
-.score-mid .ai-score-label { color: var(--warn); }
-.score-hi .ai-score-label { color: var(--ok); }
-
-/* Feedback text */
-.ai-feedback-text {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.65;
-  margin-bottom: 0;
-  font-weight: 400;
-}
-
-/* Suggestion box */
-.ai-suggestion {
-  margin-top: 9px;
-  padding: 11px 13px;
-  background: var(--blue-lt);
-  border: 1px solid var(--blue-lt2);
-  border-radius: var(--r);
-}
-.ai-suggestion-label {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--blue);
-  letter-spacing: .6px;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-.ai-suggestion-text {
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.65;
-  font-weight: 400;
-}
-.btn-apply {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  padding: 4px 12px;
-  background: var(--white);
-  border: 1px solid var(--blue-lt3);
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--blue);
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all .12s;
-}
-.btn-apply:hover {
-  background: var(--blue2);
-  color: #fff;
-  border-color: var(--blue2);
-}
-
-/* ═══════════════════════════════════════════
-   SUBMIT BLOCK
-═══════════════════════════════════════════ */
-.submit-block {
-  background: var(--navy2);
-  border-radius: var(--r-2xl);
-  padding: 24px 28px;
-  margin-top: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  position: relative;
-  overflow: hidden;
-}
-.submit-block::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1.5px;
-  background: linear-gradient(90deg, var(--blue3), var(--gold2), transparent);
-}
-.submit-note {
-  font-size: 12px;
-  color: rgba(255,255,255,.38);
-  line-height: 1.65;
-  max-width: 400px;
-  font-weight: 300;
-}
-.submit-note strong { color: rgba(255,255,255,.65); font-weight: 500; }
-.btn-submit {
-  padding: 11px 28px;
-  background: var(--blue2);
-  color: #fff;
-  border: none;
-  border-radius: var(--r);
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font);
-  cursor: pointer;
-  white-space: nowrap;
-  letter-spacing: -.1px;
-  box-shadow: 0 2px 10px rgba(31,86,214,.4);
-  transition: all .15s;
-}
-.btn-submit:hover { background: var(--blue3); box-shadow: 0 4px 16px rgba(31,86,214,.5); }
-.btn-submit:active { transform: scale(.98); }
-.btn-submit:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
-.btn-submit .spinner {
-  display: none;
-  width: 13px; height: 13px;
-  border: 2px solid rgba(255,255,255,.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  vertical-align: middle;
-  margin-right: 7px;
-}
-.btn-submit.loading .spinner { display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.toast-success {
-  display: none;
-  margin-top: 12px;
-  padding: 13px 16px;
-  background: var(--ok-bg);
-  border: 1px solid var(--ok-bdr);
-  border-radius: var(--r-lg);
-}
-.toast-title { font-size: 13px; font-weight: 600; color: var(--ok); margin-bottom: 2px; }
-.toast-msg { font-size: 12px; color: rgba(10,122,90,.65); font-weight: 300; }
-
-/* ═══════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════ */
-.err-msg { font-size: 11px; color: var(--err); margin-top: 4px; display: none; }
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  .g2, .g3, .matriz-grid { grid-template-columns: 1fr; }
-  .content { padding: 18px 16px 60px; }
-}
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn .3s ease; }
 </style>
 </head>
 <body>
-<div class="app">
 
-<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<!-- ═══════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════ -->
 <nav class="sidebar">
-  <div class="sb-brand">
-    <div class="sb-logo-row">
-      <div class="sb-mark">
-        <svg viewBox="0 0 13 13" fill="none">
-          <path d="M2 6.5L5 10.5L11 2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
+  <div class="sidebar-logo">
+    <div class="logo-icon">P</div>
+    <div>
+      <div class="logo-text">predictable<span style="color:var(--blue)">.ai</span></div>
+      <div class="logo-sub">Revenue OS</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">Overview</div>
+  <div class="nav-item active" data-page="dashboard" onclick="nav(this,'dashboard')">
+    <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".7"/></svg>
+    Dashboard
+  </div>
+
+  <div class="sidebar-section">Módulo 1</div>
+  <div class="nav-item" data-page="mi-overview" onclick="nav(this,'mi-overview')">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+    Market Intelligence
+    <span class="nav-badge">3</span>
+  </div>
+  <div class="nav-item" data-page="mi-matrix" onclick="nav(this,'mi-matrix')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M2 6h12M6 2v12"/></svg>
+    Matriz de Input
+  </div>
+  <div class="nav-item" data-page="mi-dashboard" onclick="nav(this,'mi-dashboard')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><path d="M2 12l4-4 3 3 5-6"/></svg>
+    Intelligence Hub
+  </div>
+  <div class="nav-item" data-page="mi-accionables" onclick="nav(this,'mi-accionables')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><path d="M13 8l-5 5-5-5M8 3v10"/></svg>
+    Accionables GTM
+  </div>
+
+  <div class="sidebar-section">Módulo 2</div>
+  <div class="nav-item" data-page="pro-overview" onclick="nav(this,'pro-overview')">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2.5-5 5-5M14 11l-3 3-1.5-1.5"/></svg>
+    Prospección
+    <span class="nav-badge purple">7</span>
+  </div>
+  <div class="nav-item" data-page="pro-icp" onclick="nav(this,'pro-icp')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><path d="M8 1l2 4 5 .5-3.5 3.5 1 5L8 12l-4.5 2 1-5L1 5.5 6 5z"/></svg>
+    ICP Builder
+  </div>
+  <div class="nav-item" data-page="pro-apollo" onclick="nav(this,'pro-apollo')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5 8l2 2 4-4"/></svg>
+    Apollo Sequences
+  </div>
+  <div class="nav-item" data-page="pro-mensajes" onclick="nav(this,'pro-mensajes')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v7a1 1 0 01-1 1H5l-3 2V4z"/></svg>
+    Mensajes & Cadencias
+  </div>
+
+  <div class="sidebar-section">Módulo 3</div>
+  <div class="nav-item" data-page="ventas-overview" onclick="nav(this,'ventas-overview')">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><path d="M8 2v12M4 10l4 4 4-4"/><circle cx="8" cy="5" r="3"/></svg>
+    Ventas AI
+    <span class="nav-badge green">2</span>
+  </div>
+  <div class="nav-item" data-page="ventas-coach" onclick="nav(this,'ventas-coach')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M5 13v2M11 13v2M3 15h10"/></svg>
+    Meeting Coach
+  </div>
+  <div class="nav-item" data-page="ventas-reportes" onclick="nav(this,'ventas-reportes')" style="padding-left:24px;font-size:12px">
+    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 16 16" stroke-width="1.5"><path d="M3 14V6l4-4h6v12H3z"/><path d="M7 2v4H3"/><path d="M6 9h4M6 11h3"/></svg>
+    Reportes SDR
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">AV</div>
       <div>
-        <div class="sb-brand-name">Predictable.ai</div>
-        <div class="sb-brand-by">by VANAR</div>
+        <div class="user-name">Aarón Vanoordt</div>
+        <div class="user-role">Admin · Vanar</div>
       </div>
     </div>
-    <div class="sb-workspace">
-      <div class="sb-ws-label">Proyecto activo</div>
-      <div class="sb-ws-name" id="sb-client-name">Market Intelligence</div>
-    </div>
-  </div>
-
-  <div class="sb-nav">
-    <div class="sb-section-label">Activo</div>
-
-    <div class="sb-item active">
-      <div class="sb-icon">🏢</div>
-      <div class="sb-item-body">
-        <div class="sb-item-name">Market Intelligence</div>
-        <div class="sb-item-sub">Intake Form completo</div>
-      </div>
-      <span class="sb-tag tag-live">Live</span>
-    </div>
-
-    <div class="sb-section-label" style="margin-top:8px">Próximamente</div>
-
-    <div class="sb-item disabled">
-      <div class="sb-icon">🔍</div>
-      <div class="sb-item-body">
-        <div class="sb-item-name">Revenue Architecture</div>
-        <div class="sb-item-sub">Diseño del sistema de revenue</div>
-      </div>
-      <span class="sb-tag tag-soon">Soon</span>
-    </div>
-
-    <div class="sb-item disabled">
-      <div class="sb-icon">🎯</div>
-      <div class="sb-item-body">
-        <div class="sb-item-name">Hunting Systems</div>
-        <div class="sb-item-sub">Prospección automatizada</div>
-      </div>
-      <span class="sb-tag tag-soon">Soon</span>
-    </div>
-
-    <div class="sb-item disabled">
-      <div class="sb-icon">⚙️</div>
-      <div class="sb-item-body">
-        <div class="sb-item-name">Commercial OS</div>
-        <div class="sb-item-sub">CRM & procesos comerciales</div>
-      </div>
-      <span class="sb-tag tag-soon">Soon</span>
-    </div>
-
-    <div class="sb-item disabled">
-      <div class="sb-icon">📋</div>
-      <div class="sb-item-body">
-        <div class="sb-item-name">Tender & Bid</div>
-        <div class="sb-item-sub">Gestión de licitaciones</div>
-      </div>
-      <span class="sb-tag tag-soon">Soon</span>
-    </div>
-
-    <div class="sb-item disabled">
-      <div class="sb-icon">📈</div>
-      <div class="sb-item-body">
-        <div class="sb-item-name">Revenue Assurance</div>
-        <div class="sb-item-sub">Control y métricas</div>
-      </div>
-      <span class="sb-tag tag-soon">Soon</span>
-    </div>
-  </div>
-
-  <div class="sb-footer">
-    <div class="sb-progress-header">
-      <span>Completado</span>
-      <strong id="sb-pct-label">0%</strong>
-    </div>
-    <div class="sb-progressbar">
-      <div class="sb-progressbar-fill" id="sb-fill"></div>
-    </div>
-    <button class="sb-save-btn" id="sb-save-btn" onclick="submitForm()">
-      Guardar y enviar
-    </button>
   </div>
 </nav>
 
-<!-- ═══════════════ MAIN ═══════════════ -->
-<div class="main">
+<!-- ═══════════════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════════════ -->
+<main class="main">
 
-  <!-- Topbar -->
-  <div class="topbar">
-    <div class="topbar-title">Market Intelligence — Intake Form</div>
-    <div class="topbar-status">
-      <div class="live-dot"></div>
-      En progreso
+<!-- ═══════ PAGE: DASHBOARD ═══════ -->
+<div class="page active fade-in" id="page-dashboard">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div>
+      <div class="topbar-title">Revenue OS</div>
+      <div class="topbar-sub">Bienvenido, Aarón · Semana 15 · Q2 2026</div>
     </div>
-    <div class="topbar-pct" id="topbar-pct">0% completado</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">↗ Exportar</button>
+      <button class="btn btn-primary btn-sm">+ Nueva campaña</button>
+    </div>
   </div>
 
-  <!-- Content -->
-  <div class="content" id="main-scroll">
+  <!-- KPI ROW -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Reuniones generadas</div>
+      <div class="stat-val" style="color:var(--blue)">42</div>
+      <div class="stat-sub delta-up">↑ 18% vs mes anterior</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Contactos en secuencia</div>
+      <div class="stat-val" style="color:var(--purple)">1,247</div>
+      <div class="stat-sub delta-up">↑ 340 nuevos esta semana</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Open rate emails</div>
+      <div class="stat-val" style="color:var(--amber)">38.4%</div>
+      <div class="stat-sub delta-up">↑ 4.1pp vs benchmark</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Score vendedor promedio</div>
+      <div class="stat-val" style="color:var(--green)">74</div>
+      <div class="stat-sub" style="color:var(--text3)">Basado en 12 meetings</div>
+    </div>
+  </div>
 
-    <!-- Hero -->
-    <div class="hero-banner">
-      <div class="hero-eyebrow">Predictable.ai · Revenue Execution Infrastructure</div>
-      <div class="hero-title">Inteligencia de mercado</div>
-      <div class="hero-desc">
-        Completa este formulario con lo que ya sabes de tu empresa. No necesitas buscar ni calcular nada —
-        con tus respuestas construiremos un análisis de primer nivel que incluye competencia, tamaño de mercado,
-        oportunidades y recomendaciones accionables.
+  <!-- CHART ROW -->
+  <div class="row">
+    <div class="chart-card" style="flex:2">
+      <div class="chart-header">
+        <span class="chart-title">Pipeline generado por semana</span>
+        <div class="tabs" style="transform:scale(.85);transform-origin:right">
+          <div class="tab active">4s</div>
+          <div class="tab">12s</div>
+          <div class="tab">YTD</div>
+        </div>
       </div>
-      <div class="hero-meta">
-        <span class="hero-chip">⏱ 20–30 minutos</span>
-        <span class="hero-chip">5 secciones</span>
-        <span class="hero-chip">Datos seguros y confidenciales</span>
+      <div class="chart-wrap"><canvas id="pipelineChart"></canvas></div>
+    </div>
+    <div class="chart-card" style="flex:1">
+      <div class="chart-header"><span class="chart-title">Canales activos</span></div>
+      <div class="chart-wrap"><canvas id="channelChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- MODULE STATUS ROW -->
+  <div class="row">
+    <div class="card" style="cursor:pointer" onclick="nav(document.querySelector('[data-page=mi-overview]'),'mi-overview')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);margin-bottom:8px">Módulo 1</div>
+          <div style="font-size:16px;font-weight:800">Market Intelligence</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">3 insights accionables · Actualizado hace 2h</div>
+        </div>
+        <span class="pill pill-green">Activo</span>
+      </div>
+      <div style="margin-top:16px;height:4px;background:var(--surface3);border-radius:2px">
+        <div style="height:4px;width:78%;background:var(--gradient-blue);border-radius:2px"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">78% matriz completada</div>
+    </div>
+
+    <div class="card" style="cursor:pointer" onclick="nav(document.querySelector('[data-page=pro-overview]'),'pro-overview')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--purple);margin-bottom:8px">Módulo 2</div>
+          <div style="font-size:16px;font-weight:800">Prospección</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">7 secuencias activas · 1,247 contactos</div>
+        </div>
+        <span class="pill pill-green">Activo</span>
+      </div>
+      <div style="margin-top:16px;height:4px;background:var(--surface3);border-radius:2px">
+        <div style="height:4px;width:92%;background:var(--gradient-purple);border-radius:2px"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">ICP definido · Apollo conectado</div>
+    </div>
+
+    <div class="card" style="cursor:pointer" onclick="nav(document.querySelector('[data-page=ventas-overview]'),'ventas-overview')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--green);margin-bottom:8px">Módulo 3</div>
+          <div style="font-size:16px;font-weight:800">Ventas AI</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px">2 reuniones hoy · 12 analizadas</div>
+        </div>
+        <span class="pill pill-amber">2 hoy</span>
+      </div>
+      <div style="margin-top:16px;height:4px;background:var(--surface3);border-radius:2px">
+        <div style="height:4px;width:55%;background:var(--gradient-green);border-radius:2px"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Coach activo · Reporte semanal listo</div>
+    </div>
+  </div>
+
+  <!-- PIPELINE KANBAN PREVIEW -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">Pipeline activo</span>
+      <button class="btn btn-ghost btn-sm" onclick="nav(document.querySelector('[data-page=pro-overview]'),'pro-overview')">Ver todo →</button>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-col">
+        <div class="pipeline-header" style="color:var(--text3)">Contactado <span>12</span></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">TechCorp SA</div><div class="pipeline-card-sub">CEO · Email D1</div><div class="pipeline-card-val">$4,500/mo</div></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">GrowthLab</div><div class="pipeline-card-sub">Head of Sales · LinkedIn</div><div class="pipeline-card-val">$2,800/mo</div></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">Finanzas 360</div><div class="pipeline-card-sub">CFO · Email D1</div><div class="pipeline-card-val">$6,200/mo</div></div>
+      </div>
+      <div class="pipeline-col">
+        <div class="pipeline-header" style="color:var(--amber)">Respondió <span>8</span></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">Retail Pro</div><div class="pipeline-card-sub">Dir. Comercial · WA</div><div class="pipeline-card-val">$3,900/mo</div></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">Logística MX</div><div class="pipeline-card-sub">CEO · Email D3</div><div class="pipeline-card-val">$5,100/mo</div></div>
+      </div>
+      <div class="pipeline-col">
+        <div class="pipeline-header" style="color:var(--blue)">Reunión agendada <span>5</span></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">SaaS Ventures</div><div class="pipeline-card-sub">Mié 16 Abr · 10:00</div><div class="pipeline-card-val">$8,500/mo</div></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">Edu Connect</div><div class="pipeline-card-sub">Jue 17 Abr · 15:00</div><div class="pipeline-card-val">$3,200/mo</div></div>
+      </div>
+      <div class="pipeline-col">
+        <div class="pipeline-header" style="color:var(--purple)">Discovery hecho <span>4</span></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">PropTech AR</div><div class="pipeline-card-sub">Score: 82 · Caliente</div><div class="pipeline-card-val">$12,000/mo</div></div>
+      </div>
+      <div class="pipeline-col">
+        <div class="pipeline-header" style="color:var(--green)">Propuesta enviada <span>3</span></div>
+        <div class="pipeline-card"><div class="pipeline-card-name">InsuraTech</div><div class="pipeline-card-sub">Cierre est. 30 Abr</div><div class="pipeline-card-val">$15,000/mo</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: MI OVERVIEW ═══════ -->
+<div class="page fade-in" id="page-mi-overview">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div>
+      <div class="topbar-title">Market Intelligence</div>
+      <div class="topbar-sub">Módulo 1 · Transformamos datos de mercado en ventaja competitiva</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">↻ Actualizar</button>
+      <button class="btn btn-primary btn-sm" onclick="nav(document.querySelector('[data-page=mi-matrix]'),'mi-matrix')">+ Completar Matriz</button>
+    </div>
+  </div>
+
+  <div class="module-intro">
+    <div class="module-intro-icon" style="background:var(--blue-dim)">🔭</div>
+    <div>
+      <div class="module-intro-title">Market Intelligence <span style="color:var(--blue)">.ai</span></div>
+      <div class="module-intro-desc">No es un resumen de newsletters ni un informe genérico de tendencias. Es un <strong>dashboard de inteligencia accionable</strong>: te dice exactamente cómo ajustar tu go-to-market, qué reinvenciones necesita tu producto, cómo se mueve el consumidor y qué ventajas competitivas explotar en tu próxima prospección.</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Competidores monitoreados</div>
+      <div class="stat-val" style="color:var(--blue)">5</div>
+      <div class="stat-sub">Actualizado hace 2h</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Señales de mercado</div>
+      <div class="stat-val" style="color:var(--amber)">12</div>
+      <div class="stat-sub delta-up">↑ 3 nuevas esta semana</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Insights accionables</div>
+      <div class="stat-val" style="color:var(--green)">3</div>
+      <div class="stat-sub">Listos para aplicar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Matriz completada</div>
+      <div class="stat-val" style="color:var(--purple)">78%</div>
+      <div class="stat-sub">Faltan 4 secciones</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <button class="btn btn-primary" style="flex:1;justify-content:center;padding:14px" onclick="nav(document.querySelector('[data-page=mi-matrix]'),'mi-matrix')">
+      📋 Completar / Revisar Matriz de Input
+    </button>
+    <button class="btn btn-ghost" style="flex:1;justify-content:center;padding:14px" onclick="nav(document.querySelector('[data-page=mi-dashboard]'),'mi-dashboard')">
+      📊 Ver Intelligence Hub
+    </button>
+    <button class="btn btn-ghost" style="flex:1;justify-content:center;padding:14px" onclick="nav(document.querySelector('[data-page=mi-accionables]'),'mi-accionables')">
+      ⚡ Ver Accionables GTM
+    </button>
+  </div>
+
+  <!-- Competitor table -->
+  <div class="table-card">
+    <div class="table-head">
+      <span style="font-size:14px;font-weight:700">Monitor de Competidores</span>
+      <span class="pill pill-blue">Actualizado hoy</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Competidor</th><th>Visitas web/mes</th><th>Variación</th><th>Top canal</th><th>Señal reciente</th><th>Amenaza</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><strong>Clari</strong></td><td>485,000</td><td class="delta-up">↑ 12%</td><td>Búsqueda orgánica</td><td>Lanzó módulo IA forecasting</td><td><span class="pill pill-red">Alta</span></td></tr>
+        <tr><td><strong>GoHighLevel</strong></td><td>312,000</td><td class="delta-up">↑ 8%</td><td>Afiliados</td><td>Nuevo plan agencia $97</td><td><span class="pill pill-amber">Media</span></td></tr>
+        <tr><td><strong>respond.io</strong></td><td>198,000</td><td class="delta-down">↓ 3%</td><td>Directo</td><td>Expansión LATAM</td><td><span class="pill pill-amber">Media</span></td></tr>
+        <tr><td><strong>Patagon AI</strong></td><td>42,000</td><td class="delta-up">↑ 31%</td><td>LinkedIn</td><td>Serie A anunciada</td><td><span class="pill pill-blue">Baja</span></td></tr>
+        <tr><td><strong>Salesforce</strong></td><td>8,200,000</td><td>—</td><td>Marca</td><td>Einstein AI update Q1</td><td><span class="pill pill-gray">Diferente mercado</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: MI MATRIX ═══════ -->
+<div class="page fade-in" id="page-mi-matrix">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div>
+      <div class="topbar-title">Matriz de Input</div>
+      <div class="topbar-sub">Módulo 1 · Define el contexto para que la IA genere inteligencia relevante</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">Guardar borrador</button>
+      <button class="btn btn-primary btn-sm" onclick="runAnalysis()">▶ Analizar con IA</button>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step done" onclick="showStep(1)"><div class="step-num">✓</div> Tu empresa</div>
+    <div class="step done" onclick="showStep(2)"><div class="step-num">✓</div> Competidores</div>
+    <div class="step active" onclick="showStep(3)"><div class="step-num">3</div> Mercado</div>
+    <div class="step" onclick="showStep(4)"><div class="step-num">4</div> Consumidor</div>
+    <div class="step" onclick="showStep(5)"><div class="step-num">5</div> Distribución</div>
+  </div>
+
+  <!-- Step 3: Mercado (active) -->
+  <div id="matrix-step" class="chart-card">
+    <div style="font-size:15px;font-weight:800;margin-bottom:18px">Paso 3: Tu Mercado</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>¿En qué países operas actualmente?</label>
+        <select multiple style="height:100px">
+          <option selected>México</option>
+          <option selected>Colombia</option>
+          <option>Perú</option>
+          <option>Chile</option>
+          <option>Argentina</option>
+          <option>España</option>
+          <option>USA</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>¿A qué países quieres expandirte?</label>
+        <select multiple style="height:100px">
+          <option>México</option>
+          <option>Colombia</option>
+          <option selected>Perú</option>
+          <option selected>Chile</option>
+          <option>Argentina</option>
+          <option>España</option>
+          <option>USA</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Industrias objetivo</label>
+        <select multiple style="height:90px">
+          <option selected>Tecnología / SaaS</option>
+          <option selected>Servicios Profesionales</option>
+          <option>E-commerce</option>
+          <option>Salud</option>
+          <option>Educación</option>
+          <option>Finanzas</option>
+          <option selected>Real Estate</option>
+          <option>Logística</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo de mercado</label>
+        <select>
+          <option>Nicho</option>
+          <option selected>Competitivo</option>
+          <option>Saturado</option>
+          <option>Emergente</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>¿Qué tendencias de mercado impactan más tu negocio hoy?</label>
+        <textarea placeholder="Ej: Adopción de IA en equipos de ventas, reducción de presupuestos de marketing, consolidación de herramientas RevOps...">Adopción acelerada de IA en equipos de ventas B2B. Los clientes buscan consolidar herramientas y reducir stack. Hay presión creciente sobre los directores de ventas para justificar ROI de sus equipos.</textarea>
+      </div>
+      <div class="form-group full">
+        <label>¿Cuál es el problema principal que resuelves para tus clientes?</label>
+        <textarea placeholder="Sé específico: ¿qué pasa si no tienen tu solución?">Sin Predictable.ai, los directores de ventas toman decisiones sin visibilidad real del pipeline. El forecast es una intuición, no un sistema. Los deals se caen por falta de seguimiento o porque el vendedor no supo manejar las objeciones en el momento.</textarea>
+      </div>
+      <div class="form-group">
+        <label>Ticket promedio</label>
+        <select>
+          <option>Bajo &lt;$500/mo</option>
+          <option selected>Medio $500-$3k/mo</option>
+          <option>Alto $3k-$10k/mo</option>
+          <option>Enterprise $10k+/mo</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ciclo de ventas típico</label>
+        <select>
+          <option>Rápido 1-3 días</option>
+          <option>Medio 1-3 semanas</option>
+          <option selected>Largo 1+ mes</option>
+          <option>Enterprise 3+ meses</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:20px">
+      <button class="btn btn-ghost">← Anterior</button>
+      <button class="btn btn-primary">Siguiente → Consumidor</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: MI DASHBOARD ═══════ -->
+<div class="page fade-in" id="page-mi-dashboard">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div>
+      <div class="topbar-title">Intelligence Hub</div>
+      <div class="topbar-sub">Módulo 1 · Análisis actualizado: 14 Abr 2026 · 09:42</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">↓ Exportar PDF</button>
+      <button class="btn btn-primary btn-sm">↻ Re-analizar</button>
+    </div>
+  </div>
+
+  <!-- Market position map -->
+  <div class="row">
+    <div class="chart-card" style="flex:1">
+      <div class="chart-header"><span class="chart-title">Posicionamiento de mercado</span><span class="pill pill-blue">2x2 precio vs. alcance</span></div>
+      <div class="chart-wrap"><canvas id="posChart"></canvas></div>
+    </div>
+    <div class="chart-card" style="flex:1">
+      <div class="chart-header"><span class="chart-title">Tendencias de búsqueda</span><span class="pill pill-gray">Google Trends · 12m</span></div>
+      <div class="chart-wrap"><canvas id="trendsChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Consumer behavior signals -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">Señales del consumidor B2B</span>
+      <span class="pill pill-amber">Impacta estrategia de producto</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:4px">
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--blue);margin-bottom:8px">Qué más valoran</div>
+        <div class="score-row" style="gap:8px">
+          <div><div class="score-label"><span style="font-size:12px">Time-to-value rápido</span><span style="font-size:12px;font-weight:700">92%</span></div><div class="score-bar"><div class="score-fill" style="width:92%;background:var(--gradient-blue)"></div></div></div>
+          <div><div class="score-label"><span style="font-size:12px">Integración con CRM</span><span style="font-size:12px;font-weight:700">87%</span></div><div class="score-bar"><div class="score-fill" style="width:87%;background:var(--gradient-blue)"></div></div></div>
+          <div><div class="score-label"><span style="font-size:12px">ROI demostrable</span><span style="font-size:12px;font-weight:700">84%</span></div><div class="score-bar"><div class="score-fill" style="width:84%;background:var(--gradient-blue)"></div></div></div>
+          <div><div class="score-label"><span style="font-size:12px">Onboarding &lt;1 semana</span><span style="font-size:12px;font-weight:700">79%</span></div><div class="score-bar"><div class="score-fill" style="width:79%;background:var(--gradient-blue)"></div></div></div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--amber);margin-bottom:8px">Por qué no compran</div>
+        <div class="score-row" style="gap:8px">
+          <div><div class="score-label"><span style="font-size:12px">"Ya tenemos una herramienta"</span><span style="font-size:12px;font-weight:700">68%</span></div><div class="score-bar"><div class="score-fill" style="width:68%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></div>
+          <div><div class="score-label"><span style="font-size:12px">Precio no justificado</span><span style="font-size:12px;font-weight:700">54%</span></div><div class="score-bar"><div class="score-fill" style="width:54%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></div>
+          <div><div class="score-label"><span style="font-size:12px">Necesita aprobación board</span><span style="font-size:12px;font-weight:700">41%</span></div><div class="score-bar"><div class="score-fill" style="width:41%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></div>
+          <div><div class="score-label"><span style="font-size:12px">No prioridad ahora</span><span style="font-size:12px;font-weight:700">37%</span></div><div class="score-bar"><div class="score-fill" style="width:37%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--green);margin-bottom:8px">Adaptaciones de producto</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2)">
+          <div style="display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span> Ofrece prueba de 14 días sin fricción</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span> Construye ROI calculator en el onboarding</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span> Integración nativa HubSpot/Salesforce</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span> Case study con número concreto (ej: 42 reuniones/mes)</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--green);font-weight:700">→</span> Deck ejecutivo para presentar al board</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: MI ACCIONABLES ═══════ -->
+<div class="page fade-in" id="page-mi-accionables">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div>
+      <div class="topbar-title">Accionables GTM</div>
+      <div class="topbar-sub">Módulo 1 · Qué hacer esta semana para mover el mercado</div>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(135deg,rgba(79,142,247,.08),rgba(124,92,252,.08));border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;gap:12px;align-items:center">
+    <span style="font-size:24px">🧠</span>
+    <div><div style="font-size:14px;font-weight:700;margin-bottom:3px">Insight principal para tu próxima prospección</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6">El 92% de tus ICPs más calientes <strong>prioriza time-to-value sobre precio</strong>. Tu mensaje debe posicionar "resultados en 30 días" como promesa central, no el precio ni las features. Esto conecta directamente con el libro <em>$100M Leads</em> de Hormozi: la oferta debe eliminar el riesgo percibido.</div>
+    </div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-card" style="border-color:rgba(79,142,247,.3)">
+      <div class="insight-icon">🎯</div>
+      <div class="insight-label">Go-to-Market</div>
+      <div class="insight-title">Reenfocar mensajes en "predictabilidad", no en "más leads"</div>
+      <div class="insight-body">Tu ICP sufre de incertidumbre en el forecast, no de falta de leads. Cambiar el ángulo a "¿sabes si vas a cerrar el mes?" genera 3x más respuesta que hablar de generación de pipeline.</div>
+      <button class="insight-action action-blue" onclick="nav(document.querySelector('[data-page=pro-mensajes]'),'pro-mensajes')">Aplicar en mensajes →</button>
+    </div>
+    <div class="insight-card" style="border-color:rgba(16,185,129,.3)">
+      <div class="insight-icon">🔄</div>
+      <div class="insight-label">Reinvención de producto</div>
+      <div class="insight-title">Añadir "Revenue Risk Score" como métrica principal del dashboard</div>
+      <div class="insight-body">Los directores necesitan una sola métrica que les diga si van a cumplir target. Un score tipo semáforo (Rojo/Amarillo/Verde) reduce la fricción de adopción y crea el hábito de uso diario.</div>
+      <button class="insight-action action-blue">Crear en roadmap →</button>
+    </div>
+    <div class="insight-card" style="border-color:rgba(245,158,11,.3)">
+      <div class="insight-icon">👤</div>
+      <div class="insight-label">Comportamiento del consumidor</div>
+      <div class="insight-title">Los CFOs están entrando al ciclo de compra más temprano</div>
+      <div class="insight-body">Debido a la presión de eficiencia operativa, el 67% de las compras de RevOps ahora requieren aprobación financiera antes del piloto. Crea un "ROI deck" de 5 slides para que el champion lo presente internamente.</div>
+      <button class="insight-action action-blue">Descargar template →</button>
+    </div>
+    <div class="insight-card" style="border-color:rgba(124,92,252,.3)">
+      <div class="insight-icon">⚡</div>
+      <div class="insight-label">Ventaja competitiva para prospectar</div>
+      <div class="insight-title">Ningún competidor cubre los 3 módulos integrados</div>
+      <div class="insight-body">Clari hace forecasting pero no prospección ni coaching de ventas. GoHighLevel tiene automatización pero no inteligencia. Patagon tiene WhatsApp pero no visibilidad. <strong>Eso es tu moat.</strong></div>
+      <button class="insight-action action-blue" onclick="nav(document.querySelector('[data-page=pro-mensajes]'),'pro-mensajes')">Usar en pitch →</button>
+    </div>
+  </div>
+
+  <!-- Trend alerts -->
+  <div class="table-card">
+    <div class="table-head"><span style="font-size:14px;font-weight:700">Alertas de mercado en tiempo real</span><span class="pill pill-red">3 críticas</span></div>
+    <table>
+      <thead><tr><th>Señal</th><th>Fuente</th><th>Impacto</th><th>Acción sugerida</th></tr></thead>
+      <tbody>
+        <tr><td>Patagon AI anunció Serie A de $4M</td><td>LinkedIn · hace 3h</td><td><span class="pill pill-red">Alta</span></td><td>Acelerar propuestas en pipeline open</td></tr>
+        <tr><td>Clari lanzó "AI Forecasting V3"</td><td>Blog · hace 2 días</td><td><span class="pill pill-amber">Media</span></td><td>Diferenciarte en operación, no solo forecast</td></tr>
+        <tr><td>"revenue operations latam" +47% búsquedas</td><td>Google Trends · esta semana</td><td><span class="pill pill-green">Oportunidad</span></td><td>Publicar contenido SEO esta semana</td></tr>
+        <tr><td>respond.io bajó precio plan Starter</td><td>Visualping · ayer</td><td><span class="pill pill-blue">Baja</span></td><td>Revisar posicionamiento de precio módulo 2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: PRO OVERVIEW ═══════ -->
+<div class="page fade-in" id="page-pro-overview">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div>
+      <div class="topbar-title">Prospección</div>
+      <div class="topbar-sub">Módulo 2 · Del ICP al meeting en calendar — sin fricciones</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="nav(document.querySelector('[data-page=pro-icp]'),'pro-icp')">Editar ICP</button>
+      <button class="btn btn-purple btn-sm" onclick="nav(document.querySelector('[data-page=pro-apollo]'),'pro-apollo')">+ Nueva secuencia Apollo</button>
+    </div>
+  </div>
+
+  <div class="module-intro">
+    <div class="module-intro-icon" style="background:var(--purple-dim)">🎯</div>
+    <div>
+      <div class="module-intro-title">Prospección <span style="color:var(--purple)">.ai</span></div>
+      <div class="module-intro-desc">Define tu ICP con los frameworks de targeting más probados (Josh, Chris Orlob, Alex Boyd), construye tu base de datos con Apollo, dispara cadencias multi-canal (email · LinkedIn · WhatsApp · SMS) desde respond.io y agenda reuniones directo en Google Calendar. Todo en un solo flujo.</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Contactos activos</div>
+      <div class="stat-val" style="color:var(--purple)">1,247</div>
+      <div class="stat-sub delta-up">↑ 340 esta semana</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Secuencias activas</div>
+      <div class="stat-val" style="color:var(--blue)">7</div>
+      <div class="stat-sub">3 canales: Email, LI, WA</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Reply rate promedio</div>
+      <div class="stat-val" style="color:var(--amber)">8.4%</div>
+      <div class="stat-sub delta-up">↑ 2.1pp vs semana ant.</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Meetings this week</div>
+      <div class="stat-val" style="color:var(--green)">11</div>
+      <div class="stat-sub">Meta: 12 · 92% completado</div>
+    </div>
+  </div>
+
+  <!-- Flow diagram -->
+  <div class="chart-card">
+    <div class="chart-header"><span class="chart-title">Flujo de prospección activo</span></div>
+    <div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding:8px 0">
+      <div style="text-align:center;min-width:120px">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--blue-dim);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px">🗺️</div>
+        <div style="font-size:11px;font-weight:700;color:var(--blue)">ICP Builder</div>
+        <div style="font-size:10px;color:var(--text3)">Definido</div>
+      </div>
+      <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--blue),var(--purple));min-width:40px"></div>
+      <div style="text-align:center;min-width:120px">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--purple-dim);border:2px solid var(--purple);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px">🔍</div>
+        <div style="font-size:11px;font-weight:700;color:var(--purple)">Apollo Search</div>
+        <div style="font-size:10px;color:var(--text3)">1,247 contactos</div>
+      </div>
+      <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--purple),var(--amber));min-width:40px"></div>
+      <div style="text-align:center;min-width:120px">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(245,158,11,.12);border:2px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px">💬</div>
+        <div style="font-size:11px;font-weight:700;color:var(--amber)">respond.io</div>
+        <div style="font-size:10px;color:var(--text3)">Email · LI · WA</div>
+      </div>
+      <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--amber),var(--green));min-width:40px"></div>
+      <div style="text-align:center;min-width:120px">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--green-dim);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px">📅</div>
+        <div style="font-size:11px;font-weight:700;color:var(--green)">Google Calendar</div>
+        <div style="font-size:10px;color:var(--text3)">11 reuniones</div>
+      </div>
+      <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--green),var(--blue));min-width:40px"></div>
+      <div style="text-align:center;min-width:120px">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--blue-dim);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 8px">🤖</div>
+        <div style="font-size:11px;font-weight:700;color:var(--blue)">Ventas AI</div>
+        <div style="font-size:10px;color:var(--text3)">Módulo 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active sequences table -->
+  <div class="table-card">
+    <div class="table-head"><span style="font-size:14px;font-weight:700">Secuencias activas</span><button class="btn btn-purple btn-sm" onclick="nav(document.querySelector('[data-page=pro-apollo]'),'pro-apollo')">+ Nueva</button></div>
+    <table>
+      <thead><tr><th>Secuencia</th><th>Canal</th><th>Enviados</th><th>Opens</th><th>Replies</th><th>Meetings</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SaaS CEOs LATAM Q2</strong></td><td><span class="pill pill-blue">Email</span></td><td>342</td><td>41%</td><td>9.1%</td><td>6</td><td><span class="pill pill-green">Activa</span></td></tr>
+        <tr><td><strong>Head of Sales - MX</strong></td><td><span class="pill pill-purple">LinkedIn</span></td><td>218</td><td>—</td><td>12.4%</td><td>3</td><td><span class="pill pill-green">Activa</span></td></tr>
+        <tr><td><strong>CFO Tech Companies</strong></td><td><span class="pill pill-amber">WA + Email</span></td><td>89</td><td>78%</td><td>6.7%</td><td>2</td><td><span class="pill pill-green">Activa</span></td></tr>
+        <tr><td><strong>PropTech Directores</strong></td><td><span class="pill pill-blue">Email</span></td><td>156</td><td>35%</td><td>5.1%</td><td>0</td><td><span class="pill pill-amber">Optimizar</span></td></tr>
+        <tr><td><strong>EdTech CO + PE</strong></td><td><span class="pill pill-purple">LinkedIn</span></td><td>94</td><td>—</td><td>8.5%</td><td>0</td><td><span class="pill pill-amber">Pausada</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: PRO ICP ═══════ -->
+<div class="page fade-in" id="page-pro-icp">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div><div class="topbar-title">ICP Builder</div><div class="topbar-sub">Módulo 2 · Basado en Josh's Targeting Framework + Chris Orlob Playbook</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">Guardar ICP</button>
+      <button class="btn btn-purple btn-sm" onclick="nav(document.querySelector('[data-page=pro-apollo]'),'pro-apollo')">Buscar en Apollo →</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <!-- Firmographic -->
+    <div class="chart-card">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--purple)">🏢 Firmográfico</div>
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>Países objetivo</label>
+          <select multiple style="height:80px"><option selected>México</option><option selected>Colombia</option><option selected>Perú</option><option>Chile</option><option>Argentina</option></select></div>
+        <div class="form-group"><label>Industrias</label>
+          <select multiple style="height:80px"><option selected>SaaS / Tecnología</option><option selected>Servicios Profesionales</option><option>E-commerce</option><option selected>Real Estate</option></select></div>
+        <div class="form-group"><label>Tamaño de empresa</label>
+          <select multiple style="height:60px"><option>1-10</option><option selected>11-50</option><option selected>51-200</option><option>201-500</option></select></div>
+        <div class="form-group"><label>Tipo de cliente</label>
+          <select><option selected>B2B</option><option>B2C</option><option>Mixto</option></select></div>
       </div>
     </div>
 
-    <!-- ─── SECCIÓN 1: TU EMPRESA ─── -->
-    <div class="sec-header" id="sec-empresa">
-      <div class="sec-number">1</div>
-      <div class="sec-title">Tu empresa</div>
-      <div class="sec-line"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">🏢</div>
-        <div class="card-title">Datos generales</div>
-        <span class="card-badge">Empresa</span>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>Nombre de la empresa</label>
-          <input id="f-nombre" type="text" placeholder="Nombre comercial y/o razón social" oninput="updateProgress()"/>
-        </div>
-        <div class="field">
-          <label>Sitio web</label>
-          <input id="f-web" type="url" placeholder="https://tuempresa.com" oninput="updateProgress()"/>
-        </div>
-      </div>
-      <div class="field">
-        <label>¿A qué se dedica la empresa?</label>
-        <div class="field-hint">En 2–3 oraciones. Ej: Somos una empresa de logística que transporta carga pesada para mineras en el sur del Perú.</div>
-        <textarea id="f-desc" placeholder="Describe brevemente tu empresa y lo que hace..." oninput="updateProgress()"></textarea>
-      </div>
-      <div class="g3">
-        <div class="field">
-          <label>Años de operación</label>
-          <input id="f-anos" type="text" placeholder="Ej: 8 años (desde 2016)" oninput="updateProgress()"/>
-        </div>
-        <div class="field">
-          <label>Número de empleados</label>
-          <input id="f-emp" type="text" placeholder="Ej: 45 empleados, 12 en ventas" oninput="updateProgress()"/>
-        </div>
-        <div class="field">
-          <label>Ciudad(es) / regiones donde opera</label>
-          <input id="f-ciudades" type="text" placeholder="Ej: Lima, Arequipa, Cusco" oninput="updateProgress()"/>
-        </div>
-      </div>
-      <div class="field">
-        <label>Estructura societaria</label>
-        <div class="field-hint">¿Empresa familiar, socios externos, parte de un grupo más grande?</div>
-        <input id="f-sociedad" type="text" placeholder="Ej: Empresa familiar — socios padre e hijo / Parte del Grupo XYZ" oninput="updateProgress()"/>
+    <!-- Psychographic -->
+    <div class="chart-card">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--blue)">🧠 Psicográfico (Dolor)</div>
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>Cargo del decisor</label>
+          <select multiple style="height:80px"><option selected>CEO / Founder</option><option selected>Director de Ventas</option><option selected>Head of Revenue</option><option>CFO</option><option>VP Sales</option></select></div>
+        <div class="form-group"><label>Área de decisión</label>
+          <select multiple style="height:60px"><option selected>Ventas</option><option selected>Operaciones Comerciales</option><option>Marketing</option><option>Finanzas</option></select></div>
+        <div class="form-group"><label>Trigger events (señales de compra)</label>
+          <select multiple style="height:80px"><option selected>Contrató nuevos SDRs</option><option selected>Nuevo director de ventas</option><option>Levantó capital</option><option selected>Perdió deals grandes</option><option>Expansión a nuevo país</option></select></div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">👥</div>
-        <div class="card-title">Clientes y ventas</div>
-        <span class="card-badge">Empresa</span>
-      </div>
-      <div class="field">
-        <label>¿Quién es tu cliente típico?</label>
-        <div class="field-hint">Industria, tamaño de empresa, perfil del decisor, dolor principal que los lleva a comprarte.</div>
-        <textarea id="f-cliente" placeholder="Ej: Empresas medianas del sector retail, con 50–200 trabajadores, cuyo gerente de operaciones busca reducir costos de almacén y mejorar tiempos de entrega..." oninput="updateProgress()"></textarea>
-      </div>
-      <div class="field">
-        <label>¿Cuál es el principal problema que le resuelves a tu cliente?</label>
-        <div class="field-hint">El «dolor» real que tienen antes de comprarte. Cuanto más específico, mejor.</div>
-        <textarea id="f-problema" placeholder="Ej: Les quitamos el dolor de gestionar su flota propia — no tienen que comprar camiones ni contratar choferes, y reducen costos logísticos en un 30%..." oninput="updateProgress()"></textarea>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>Clientes activos aproximados</label>
-          <input id="f-nclientes" type="text" placeholder="Ej: 15 clientes recurrentes / unos 200 clientes al mes" oninput="updateProgress()"/>
-        </div>
-        <div class="field">
-          <label>Ticket promedio o rango de precio por venta</label>
-          <input id="f-ticket" type="text" placeholder="Ej: S/. 5,000 a 50,000 mensuales / Ticket prom: $200" oninput="updateProgress()"/>
-        </div>
-      </div>
-      <div class="field">
-        <label>2–3 clientes más importantes</label>
-        <div class="field-hint">Solo el rubro si prefieres no dar nombres. Ej: Una AFP, una cadena de supermercados, una minera.</div>
-        <input id="f-top-clientes" type="text" placeholder="Ej: Una AFP, una cadena de supermercados, una empresa minera" oninput="updateProgress()"/>
-      </div>
-      <div class="field">
-        <label>¿Cómo consigues nuevos clientes hoy?</label>
-        <div class="field-hint">Escribe cada canal y presiona Enter para añadirlo.</div>
-        <div class="tagbox" id="tagbox-canales">
-          <input id="ti-canales" placeholder="Ej: Referidos, LinkedIn, ferias comerciales, Google Ads..."/>
-        </div>
-        <input type="hidden" id="f-canales"/>
+    <!-- Negative ICP -->
+    <div class="chart-card">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--red)">🚫 ICP Negativo (Excluir)</div>
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>Industrias a excluir</label>
+          <input type="text" value="Gobierno, ONGs, Educación pública, B2C puro"></div>
+        <div class="form-group"><label>Tamaños a excluir</label>
+          <select multiple style="height:60px"><option selected>1-10 (sin presupuesto)</option><option>500+ (ciclo demasiado largo)</option></select></div>
+        <div class="form-group"><label>Exclusión explícita (clientes pasados, competidores)</label>
+          <textarea style="height:60px" placeholder="Nombres de empresas a excluir..."></textarea></div>
       </div>
     </div>
 
-    <!-- ─── SECCIÓN 2: PRODUCTO ─── -->
-    <div class="sec-header" id="sec-producto">
-      <div class="sec-number">2</div>
-      <div class="sec-title">Producto y servicio</div>
-      <div class="sec-line"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">🎯</div>
-        <div class="card-title">Lo que vendes</div>
-        <span class="card-badge">Producto</span>
-      </div>
-      <div class="field">
-        <label>¿Qué productos o servicios vendes? Lista todos.</label>
-        <div class="field-hint">Ej: (1) Transporte de carga, (2) Almacenaje, (3) Picking & packing. El 70% de ingresos viene del transporte.</div>
-        <textarea id="f-productos" placeholder="Lista todos tus productos o servicios con su peso aproximado en ingresos..." oninput="updateProgress()"></textarea>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>Producto / servicio estrella</label>
-          <div class="field-hint">El que más ingresos genera o el que más clientes compran.</div>
-          <input id="f-estrella" type="text" placeholder="El que más ingresos genera..." oninput="updateProgress()"/>
+    <!-- ICP Score -->
+    <div class="chart-card">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--green)">📊 Score de ICP actual</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="score-row"><div class="score-label"><span>Especificidad firmográfica</span><span style="font-weight:700;color:var(--green)">88%</span></div><div class="score-bar"><div class="score-fill" style="width:88%;background:var(--gradient-green)"></div></div></div>
+        <div class="score-row"><div class="score-label"><span>Claridad del dolor</span><span style="font-weight:700;color:var(--green)">91%</span></div><div class="score-bar"><div class="score-fill" style="width:91%;background:var(--gradient-green)"></div></div></div>
+        <div class="score-row"><div class="score-label"><span>Trigger events definidos</span><span style="font-weight:700;color:var(--amber)">67%</span></div><div class="score-bar"><div class="score-fill" style="width:67%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></div>
+        <div class="score-row"><div class="score-label"><span>Mensaje alineado al ICP</span><span style="font-weight:700;color:var(--blue)">79%</span></div><div class="score-bar"><div class="score-fill" style="width:79%;background:var(--gradient-blue)"></div></div></div>
+        <div style="margin-top:8px;padding:12px;background:var(--surface2);border-radius:8px;font-size:12px;color:var(--text2)">
+          💡 <strong style="color:var(--text)">Recomendación:</strong> Agrega más trigger events específicos (ej: job postings de SDRs, cambio en liderazgo comercial) para mejorar precisión de targeting en +15%
         </div>
-        <div class="field">
-          <label>¿Cómo se entrega al cliente?</label>
-          <div class="pill-group" style="margin-top:4px">
-            <div class="pill" onclick="selectPill(this,'f-entrega')" data-v="Visita presencial">Visita presencial</div>
-            <div class="pill" onclick="selectPill(this,'f-entrega')" data-v="Envío físico">Envío físico</div>
-            <div class="pill" onclick="selectPill(this,'f-entrega')" data-v="Digital / cloud">Digital / cloud</div>
-            <div class="pill" onclick="selectPill(this,'f-entrega')" data-v="Instalación en sitio">Instalación en sitio</div>
-            <div class="pill" onclick="selectPill(this,'f-entrega')" data-v="Mixto">Mixto</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: PRO APOLLO ═══════ -->
+<div class="page fade-in" id="page-pro-apollo">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div><div class="topbar-title">Apollo Sequences</div><div class="topbar-sub">Módulo 2 · ICP → Apollo → Contactos enriquecidos → Secuencia activa</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-purple btn-sm" onclick="launchApollo()">🚀 Buscar leads ahora</button>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step done"><div class="step-num">✓</div> ICP definido</div>
+    <div class="step active"><div class="step-num">2</div> Búsqueda Apollo</div>
+    <div class="step"><div class="step-num">3</div> Enrichment</div>
+    <div class="step"><div class="step-num">4</div> Asignar secuencia</div>
+    <div class="step"><div class="step-num">5</div> Activar en respond.io</div>
+  </div>
+
+  <div class="chart-card">
+    <div style="font-size:15px;font-weight:800;margin-bottom:18px">Criterios de búsqueda (desde ICP)</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Títulos a buscar</label>
+        <input type="text" value="CEO, Founder, Director de Ventas, VP Sales, Head of Revenue"></div>
+      <div class="form-group"><label>Industrias</label>
+        <input type="text" value="SaaS, Tech, Professional Services, Real Estate"></div>
+      <div class="form-group"><label>Países</label>
+        <input type="text" value="Mexico, Colombia, Peru, Chile"></div>
+      <div class="form-group"><label>Tamaño empresa (empleados)</label>
+        <input type="text" value="11-200"></div>
+      <div class="form-group"><label>Keywords en bio/descripción</label>
+        <input type="text" value="revenue, sales, growth, B2B"></div>
+      <div class="form-group"><label>Secuencia destino</label>
+        <select><option selected>SaaS CEOs LATAM Q2</option><option>Head of Sales - MX</option><option>+ Crear nueva secuencia</option></select></div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:12px">
+      <button class="btn btn-purple" onclick="launchApollo()">🔍 Buscar en Apollo · ~500 contactos estimados</button>
+      <button class="btn btn-ghost">Ver últimos resultados</button>
+    </div>
+  </div>
+
+  <div id="apollo-results" style="display:none">
+    <div class="table-card">
+      <div class="table-head"><span style="font-size:14px;font-weight:700">Resultados · 487 contactos</span><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm">↓ CSV</button><button class="btn btn-purple btn-sm">→ Agregar a secuencia</button></div></div>
+      <table>
+        <thead><tr><th>Nombre</th><th>Cargo</th><th>Empresa</th><th>País</th><th>Email</th><th>Score ICP</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Carlos Mendoza</strong></td><td>CEO</td><td>TechStack MX</td><td>🇲🇽 México</td><td>✓ Verificado</td><td><span class="pill pill-green">94</span></td></tr>
+          <tr><td><strong>Ana Rodrigues</strong></td><td>VP Sales</td><td>GrowthLab CO</td><td>🇨🇴 Colombia</td><td>✓ Verificado</td><td><span class="pill pill-green">89</span></td></tr>
+          <tr><td><strong>Pablo Fuentes</strong></td><td>Director Comercial</td><td>PropApp PE</td><td>🇵🇪 Perú</td><td>✓ Verificado</td><td><span class="pill pill-green">85</span></td></tr>
+          <tr><td><strong>Sofía Lara</strong></td><td>Founder</td><td>B2B Consulting CL</td><td>🇨🇱 Chile</td><td>⚠ Probable</td><td><span class="pill pill-amber">72</span></td></tr>
+          <tr><td colspan="6" style="text-align:center;color:var(--text3);font-size:12px">... y 483 más</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: PRO MENSAJES ═══════ -->
+<div class="page fade-in" id="page-pro-mensajes">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div><div class="topbar-title">Mensajes & Cadencias</div><div class="topbar-sub">Módulo 2 · Secuencias multi-canal entrenadas para no sonar a ventas</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">+ Nueva cadencia</button>
+      <button class="btn btn-purple btn-sm">Activar en respond.io</button>
+    </div>
+  </div>
+
+  <div class="tabs" style="margin-bottom:16px">
+    <div class="tab active" onclick="switchMsgTab(this,'tab-email')">📧 Email</div>
+    <div class="tab" onclick="switchMsgTab(this,'tab-linkedin')">💼 LinkedIn</div>
+    <div class="tab" onclick="switchMsgTab(this,'tab-whatsapp')">📱 WhatsApp</div>
+    <div class="tab" onclick="switchMsgTab(this,'tab-sms')">💬 SMS</div>
+  </div>
+
+  <!-- EMAIL TAB -->
+  <div id="tab-email" class="msg-tab">
+    <div style="display:grid;grid-template-columns:240px 1fr;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:4px">Secuencia (7 pasos)</div>
+        <div id="seq-d1" class="chart-card" style="cursor:pointer;border-color:var(--blue);background:var(--blue-dim)" onclick="showEmail('d1')">
+          <div style="font-size:11px;font-weight:700;color:var(--blue)">DÍA 1</div>
+          <div style="font-size:12px;font-weight:600;margin-top:2px">Primer contacto</div>
+        </div>
+        <div class="chart-card" style="cursor:pointer" onclick="showEmail('d3')">
+          <div style="font-size:11px;font-weight:700;color:var(--text3)">DÍA 3</div>
+          <div style="font-size:12px;font-weight:600;margin-top:2px">Follow-up #1</div>
+        </div>
+        <div class="chart-card" style="cursor:pointer" onclick="showEmail('d7')">
+          <div style="font-size:11px;font-weight:700;color:var(--text3)">DÍA 7</div>
+          <div style="font-size:12px;font-weight:600;margin-top:2px">Value add</div>
+        </div>
+        <div class="chart-card" style="cursor:pointer" onclick="showEmail('d14')">
+          <div style="font-size:11px;font-weight:700;color:var(--text3)">DÍA 14</div>
+          <div style="font-size:12px;font-weight:600;margin-top:2px">Social proof</div>
+        </div>
+        <div class="chart-card" style="cursor:pointer" onclick="showEmail('d21')">
+          <div style="font-size:11px;font-weight:700;color:var(--text3)">DÍA 21</div>
+          <div style="font-size:12px;font-weight:600;margin-top:2px">Breakup</div>
+        </div>
+      </div>
+      <div id="email-content" class="chart-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div><div style="font-size:15px;font-weight:800">Día 1 — Primer contacto</div><div style="font-size:12px;color:var(--text3);margin-top:2px">Open rate promedio: 41% · Reply rate: 9.1%</div></div>
+          <div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm">✏ Editar</button><button class="btn btn-purple btn-sm">↗ Usar</button></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;font-size:13px;line-height:1.8;color:var(--text)">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:8px">ASUNTO</div>
+          <div style="font-weight:700;margin-bottom:16px">¿Cómo manejan el forecast en {{company}}?</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:8px">CUERPO</div>
+          <div>Hola {{first_name}},</div>
+          <br>
+          <div>Trabajando con directores de ventas en {{industry}}, una cosa que aparece seguido es que el forecast termina siendo más una estimación que un número confiable.</div>
+          <br>
+          <div>¿Es algo que están viviendo en {{company}} también, o tienen ya un sistema que funcione bien?</div>
+          <br>
+          <div>Aarón</div>
+        </div>
+        <div style="margin-top:12px;padding:10px 14px;background:var(--green-dim);border-radius:var(--radius-sm);border:1px solid rgba(16,185,129,.2)">
+          <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">💡 Por qué funciona</div>
+          <div style="font-size:12px;color:var(--text2)">Pregunta abierta que no vende nada. Nombra el dolor exacto (forecast como intuición). Usa el nombre de su empresa para contextualizar. Corto — 3 oraciones. Basado en el framework de Sam's Perfect Email: Subject Line de curiosidad + Pain point + Pregunta de calificación.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINKEDIN TAB -->
+  <div id="tab-linkedin" class="msg-tab" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--blue)">Connection Request</div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;font-size:13px;line-height:1.8">
+          Hola %%first_name%%, vi que trabajas en %%company%% — ¿conectamos?
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)">Sin pitch. Sin contexto extra. Solo conexión.</div>
+      </div>
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--blue)">Mensaje D+2 (tras aceptar)</div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;font-size:13px;line-height:1.8">
+          Gracias por conectar, %%first_name%%.<br><br>
+          Vi que lideran el equipo comercial en %%company%%. ¿Están usando algo para hacer seguimiento de si el equipo va a cumplir el mes o es más reactivo?
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)">Pregunta de dolor. No menciona la empresa ni el producto.</div>
+      </div>
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--blue)">Mensaje D+5 (si no responde)</div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;font-size:13px;line-height:1.8">
+          %%first_name%%, sin compromiso — ¿tiene 20 min la próxima semana para contarme qué están haciendo con el pipeline? Me sirve entender cómo lo hacen en %%industry%%.
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)">Frame de "me ayudas tú a mí". Reduce fricción.</div>
+      </div>
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--blue)">Breakup D+10</div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;font-size:13px;line-height:1.8">
+          No problem si no es el momento, %%first_name%%. Si algún día el forecast se vuelve un dolor de cabeza, aquí estoy.
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3)">Cierra bien. Sin presión. Deja puerta abierta.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP TAB -->
+  <div id="tab-whatsapp" class="msg-tab" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:16px;color:var(--green)">📱 WA — Primer mensaje</div>
+        <div style="background:#1a2a1a;border-radius:var(--radius-sm);padding:16px;max-width:300px">
+          <div style="background:#2a3a2a;border-radius:8px 8px 8px 2px;padding:10px 12px;font-size:13px;line-height:1.7;color:var(--text)">
+            Hola %%first_name%%, soy Aarón. Vi que lideran ventas en %%company%% — ¿tienen unos minutos para hablar esta semana?
           </div>
-          <input type="hidden" id="f-entrega"/>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;text-align:right">✓✓ Entregado</div>
         </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text3)">Máximo 1 oración. Sin contexto. Pide tiempo, no explica nada.</div>
       </div>
-      <div class="field">
-        <label>Tu precio vs la competencia</label>
-        <div class="pill-group" style="margin-bottom:8px">
-          <div class="pill" onclick="selectPill(this,'f-precio')" data-v="Más barato">Más barato</div>
-          <div class="pill" onclick="selectPill(this,'f-precio')" data-v="Similar">Similar</div>
-          <div class="pill" onclick="selectPill(this,'f-precio')" data-v="Más caro">Más caro</div>
-        </div>
-        <input type="hidden" id="f-precio"/>
-        <input id="f-precio-por" type="text" placeholder="¿Por qué? Explica brevemente..." oninput="updateProgress()"/>
-      </div>
-      <div class="field">
-        <label>Tu ventaja competitiva — lo que la competencia NO tiene</label>
-        <div class="field-hint">Ej: Certificación ISO 9001, entregamos en 24h, tenemos app propia, llevamos 20 años en el mercado.</div>
-        <textarea id="f-ventaja" placeholder="¿Qué te diferencia genuinamente de la competencia?" oninput="updateProgress()"></textarea>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">📊</div>
-        <div class="card-title">Estado actual y retos</div>
-        <span class="card-badge">Producto</span>
-      </div>
-      <div class="field">
-        <label>Tendencia de ventas en el último año</label>
-        <div class="pill-group" style="margin-bottom:10px">
-          <div class="pill" onclick="selectPill(this,'f-tendencia')" data-v="Creciendo">📈 Creciendo</div>
-          <div class="pill" onclick="selectPill(this,'f-tendencia')" data-v="Estables">➡️ Estables</div>
-          <div class="pill" onclick="selectPill(this,'f-tendencia')" data-v="Bajando">📉 Bajando</div>
-        </div>
-        <input type="hidden" id="f-tendencia"/>
-        <textarea id="f-tendencia-por" placeholder="Comenta brevemente por qué crees que es así..." oninput="updateProgress()"></textarea>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿Qué frena más tu crecimiento hoy?</label>
-          <textarea id="f-freno" placeholder="Ej: Falta presencia digital / poco capital / la competencia nos gana en precio / no tenemos equipo de ventas..." oninput="updateProgress()"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Qué te pide el cliente que aún no puedes ofrecer?</label>
-          <textarea id="f-gap" placeholder="Oportunidades que ves pero que no has podido capitalizar aún..." oninput="updateProgress()"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- ─── SECCIÓN 3: COMPETENCIA ─── -->
-    <div class="sec-header" id="sec-comp">
-      <div class="sec-number">3</div>
-      <div class="sec-title">Competencia</div>
-      <div class="sec-line"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">🥊</div>
-        <div class="card-title">Tus competidores</div>
-        <span class="card-badge">Competencia</span>
-      </div>
-      <div class="field">
-        <label>Competidores principales (3–5)</label>
-        <div class="field-hint">Los que más te quitan clientes o los que más te preocupan. Escribe cada uno y presiona Enter.</div>
-        <div class="tagbox" id="tagbox-comp">
-          <input id="ti-comp" placeholder="Ej: Empresa A, importaciones de China, startup X..."/>
-        </div>
-        <input type="hidden" id="f-competidores"/>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿Qué hace bien tu competidor más fuerte?</label>
-          <div class="field-hint">Lo que tú reconoces honestamente que hacen mejor.</div>
-          <textarea id="f-comp-bien" placeholder="Sus fortalezas reales..." oninput="updateProgress()"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Qué hace mal o qué les critica el mercado?</label>
-          <div class="field-hint">Quejas que has escuchado de sus clientes, debilidades conocidas.</div>
-          <textarea id="f-comp-mal" placeholder="Sus debilidades y puntos ciegos..." oninput="updateProgress()"></textarea>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿Hay productos importados que compitan contigo?</label>
-          <textarea id="f-importados" placeholder="Ej: Maquinaria china que llega 30% más barata / No aplica a nuestro servicio" oninput="updateProgress()"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Cuánto cobra la competencia vs tú?</label>
-          <textarea id="f-comp-precio" placeholder="Ej: Cobran similar / 20% menos / son más caros pero con más marca" oninput="updateProgress()"></textarea>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="field">
-        <label>Cuando un cliente te compara con la competencia, ¿qué le dices?</label>
-        <div class="field-hint">Tu argumento de venta real — no el que suena bien, el que realmente usas frente al cliente.</div>
-        <textarea id="f-pitch" placeholder="Tu pitch de diferenciación real..." oninput="updateProgress()"></textarea>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿Por qué te han preferido tus clientes sobre la competencia?</label>
-          <div class="field-hint">La razón real: precio, confianza, velocidad, calidad, relación personal, etc.</div>
-          <textarea id="f-porq" placeholder="La razón honesta por la que te eligen..." oninput="updateProgress()"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Han aparecido competidores nuevos en los últimos 2 años?</label>
-          <textarea id="f-nuevos-comp" placeholder="Startups, empresas extranjeras, actores grandes que antes no jugaban en tu segmento..." oninput="updateProgress()"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- ─── SECCIÓN 4: MERCADO ─── -->
-    <div class="sec-header" id="sec-mkt">
-      <div class="sec-number">4</div>
-      <div class="sec-title">Mercado y contexto</div>
-      <div class="sec-line"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">🌎</div>
-        <div class="card-title">Tu mercado</div>
-        <span class="card-badge">Mercado</span>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿En qué país(es) vendes actualmente?</label>
-          <input id="f-paises" type="text" placeholder="Ej: Solo Perú / Perú y Colombia / Exportamos a Chile" oninput="updateProgress()"/>
-        </div>
-        <div class="field">
-          <label>¿A qué países te gustaría expandirte?</label>
-          <input id="f-expansion" type="text" placeholder="Ej: Bolivia y Ecuador en 2 años / Por ahora solo nacional" oninput="updateProgress()"/>
-        </div>
-      </div>
-      <div class="field">
-        <label>Tu sector — ¿creciendo, estable o en caída?</label>
-        <div class="pill-group" style="margin-bottom:10px">
-          <div class="pill" onclick="selectPill(this,'f-sector')" data-v="Creciendo">📈 Creciendo</div>
-          <div class="pill" onclick="selectPill(this,'f-sector')" data-v="Estable">➡️ Estable</div>
-          <div class="pill" onclick="selectPill(this,'f-sector')" data-v="En caída">📉 En caída</div>
-        </div>
-        <input type="hidden" id="f-sector"/>
-        <textarea id="f-sector-por" placeholder="¿Por qué crees que es así? Tu percepción como experto del sector." oninput="updateProgress()"></textarea>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿Qué está cambiando en tu industria últimamente?</label>
-          <textarea id="f-cambios" placeholder="Ej: Digitalización acelerada, nuevas regulaciones ambientales, cambio en hábitos del consumidor..." oninput="updateProgress()"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Qué tan grande crees que es tu mercado?</label>
-          <div class="field-hint">Tu estimación intuitiva está bien. No necesitas datos exactos.</div>
-          <textarea id="f-market-size" placeholder="Ej: Unas 500 empresas podrían ser mis clientes / El mercado mueve unos $50M al año" oninput="updateProgress()"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">⚡</div>
-        <div class="card-title">Riesgos y oportunidades</div>
-        <span class="card-badge">Mercado</span>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿Qué te preocupa más del entorno externo?</label>
-          <textarea id="f-riesgo" placeholder="Ej: Inestabilidad política, tipo de cambio, que llegue una empresa grande del extranjero, nueva regulación..." oninput="updateProgress()"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Qué oportunidad grande ves que nadie está aprovechando bien?</label>
-          <textarea id="f-opp" placeholder="El gap que percibes — puede ser un segmento, una región, un problema sin resolver..." oninput="updateProgress()"></textarea>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>¿Dependes de algún proveedor o insumo crítico difícil de reemplazar?</label>
-          <textarea id="f-proveedor" placeholder="Ej: Importamos el 80% de nuestra materia prima de un solo proveedor en China / No, todo es local" oninput="updateProgress()"></textarea>
-        </div>
-        <div class="field">
-          <label>¿Vender al Estado (licitaciones) es relevante para tu negocio?</label>
-          <div class="pill-group" style="margin-bottom:8px">
-            <div class="pill" onclick="selectPill(this,'f-estado')" data-v="Sí, ya vendemos">Sí, ya vendemos</div>
-            <div class="pill" onclick="selectPill(this,'f-estado')" data-v="Quisiéramos entrar">Quisiéramos entrar</div>
-            <div class="pill" onclick="selectPill(this,'f-estado')" data-v="No aplica">No aplica</div>
+      <div class="chart-card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:16px;color:var(--green)">📱 WA — Si responde "¿de qué se trata?"</div>
+        <div style="background:#1a2a1a;border-radius:var(--radius-sm);padding:16px;max-width:300px">
+          <div style="background:#2a3a2a;border-radius:8px 8px 8px 2px;padding:10px 12px;font-size:13px;line-height:1.7;color:var(--text)">
+            Ayudamos a directores de ventas a tener más claridad sobre si van a cerrar el mes — sin depender de Excel ni de corazonadas. ¿Vale la pena hablar 20 min?
           </div>
-          <input type="hidden" id="f-estado"/>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text3)">Una sola propuesta de valor. Termina con pregunta de sí/no.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMS TAB -->
+  <div id="tab-sms" class="msg-tab" style="display:none">
+    <div class="chart-card" style="max-width:500px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text2)">SMS — Solo para leads muy calificados</div>
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;font-size:13px;line-height:1.8">
+        Hola %%first_name%%, soy Aarón de Predictable. ¿15 min esta semana para ver si podemos ayudar a {{company}} con predictabilidad en ventas? [Calendly link]
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--amber)">⚠ Usar solo tras warm-up por otro canal. Máximo 160 caracteres.</div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ═══════ PAGE: VENTAS OVERVIEW ═══════ -->
+<div class="page fade-in" id="page-ventas-overview">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div><div class="topbar-title">Ventas AI</div><div class="topbar-sub">Módulo 3 · Meeting coach en vivo + visibilidad total sobre tu equipo SDR</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="nav(document.querySelector('[data-page=ventas-reportes]'),'ventas-reportes')">📊 Ver reportes</button>
+      <button class="btn btn-green btn-sm" onclick="nav(document.querySelector('[data-page=ventas-coach]'),'ventas-coach')">🔴 Entrar a reunión</button>
+    </div>
+  </div>
+
+  <div class="module-intro">
+    <div class="module-intro-icon" style="background:var(--green-dim)">🤖</div>
+    <div>
+      <div class="module-intro-title">Ventas <span style="color:var(--green)">AI</span></div>
+      <div class="module-intro-desc">Como MeetGeek o Fireflies, pero entrenado en las mejores técnicas de ventas B2B (Predictable Revenue, $100M Leads, El Camino del Lobo). Entra a tu Google Meet, Teams o Zoom y le da al vendedor guía en tiempo real: cómo manejar objeciones, qué decir ahora, qué sabe de este prospecto desde el módulo de prospección. Al terminar genera un reporte para que el director vea exactamente cómo está performando cada SDR.</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Reuniones analizadas</div>
+      <div class="stat-val" style="color:var(--green)">12</div>
+      <div class="stat-sub">Últimos 30 días</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Score promedio del equipo</div>
+      <div class="stat-val" style="color:var(--blue)">74/100</div>
+      <div class="stat-sub delta-up">↑ 6pts vs mes anterior</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Objeción más frecuente</div>
+      <div class="stat-val" style="font-size:16px;color:var(--amber)">"Ya tenemos una herramienta"</div>
+      <div class="stat-sub">En 67% de reuniones</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Tasa de avance a propuesta</div>
+      <div class="stat-val" style="color:var(--purple)">38%</div>
+      <div class="stat-sub delta-up">↑ 8pp con coaching activo</div>
+    </div>
+  </div>
+
+  <!-- Today's meetings -->
+  <div class="chart-card">
+    <div class="chart-header"><span class="chart-title">Reuniones de hoy</span><span class="pill pill-green">2 agendadas</span></div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+      <div style="display:flex;align-items:center;gap:16px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="width:44px;height:44px;border-radius:10px;background:var(--green-dim);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📅</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700">SaaS Ventures — Discovery Call</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">Carlos Mendoza · CEO · Hoy 10:00 AM · Google Meet</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Contexto desde Módulo 2</div>
+          <div style="display:flex;gap:6px"><span class="pill pill-blue">Email D3 abierto</span><span class="pill pill-purple">Score ICP: 94</span></div>
+        </div>
+        <button class="btn btn-green btn-sm" onclick="nav(document.querySelector('[data-page=ventas-coach]'),'ventas-coach')">Entrar con AI Coach →</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="width:44px;height:44px;border-radius:10px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📅</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700">Edu Connect — Demo</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">Sofía Lara · Founder · Hoy 3:00 PM · Zoom</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Contexto desde Módulo 2</div>
+          <div style="display:flex;gap:6px"><span class="pill pill-amber">WhatsApp respondió</span><span class="pill pill-purple">Score ICP: 72</span></div>
+        </div>
+        <button class="btn btn-ghost btn-sm">Preparar brief →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDR team quick view -->
+  <div class="table-card">
+    <div class="table-head"><span style="font-size:14px;font-weight:700">Resumen del equipo SDR</span><button class="btn btn-ghost btn-sm" onclick="nav(document.querySelector('[data-page=ventas-reportes]'),'ventas-reportes')">Ver reporte completo →</button></div>
+    <table>
+      <thead><tr><th>SDR</th><th>Reuniones/mes</th><th>Score promedio</th><th>Principal debilidad</th><th>Deals perdidos por</th><th>Trend</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Miguel Torres</strong></td><td>14</td><td><span class="pill pill-green">82</span></td><td>Cierre / urgencia</td><td>No genera urgencia</td><td class="delta-up">↑ mejorando</td></tr>
+        <tr><td><strong>Valeria Cruz</strong></td><td>11</td><td><span class="pill pill-blue">74</span></td><td>Manejo de objeciones</td><td>"Ya tenemos herramienta"</td><td>→ estable</td></tr>
+        <tr><td><strong>Diego Reyes</strong></td><td>8</td><td><span class="pill pill-amber">61</span></td><td>Discovery — no escucha</td><td>Propuesta prematura</td><td class="delta-down">↓ necesita coaching</td></tr>
+        <tr><td><strong>Camila Soto</strong></td><td>16</td><td><span class="pill pill-green">88</span></td><td>—</td><td>Precio (deal size bajo)</td><td class="delta-up">↑ top performer</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: VENTAS COACH ═══════ -->
+<div class="page fade-in" id="page-ventas-coach">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:10px;height:10px;border-radius:50%;background:#ef4444" class="pulse"></div>
+      <div>
+        <div class="topbar-title">Meeting Coach <span style="color:var(--green);font-size:13px;font-weight:500">EN VIVO</span></div>
+        <div class="topbar-sub">SaaS Ventures · Carlos Mendoza · CEO · 00:08:34</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3)">
+        <span style="color:var(--green);font-weight:700">IA Coach activo</span>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm">⏸ Pausar</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="endMeeting()">■ Finalizar</button>
+    </div>
+  </div>
+
+  <div class="meeting-layout">
+    <!-- LEFT: meeting + transcript -->
+    <div class="meeting-main">
+      <div class="meeting-video">
+        <div style="font-size:48px">🎥</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text2)">Google Meet conectado</div>
+        <div style="font-size:12px;color:var(--text3)">Carlos Mendoza · SaaS Ventures</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <span class="pill pill-green pulse">● Transcribiendo</span>
+          <span class="pill pill-blue">Analizando sentimiento</span>
         </div>
       </div>
-      <div class="field">
-        <label>¿Algún dato, noticia o cambio reciente que debamos saber?</label>
-        <div class="field-hint">Algo que pasó en tu sector, con un competidor, o en el mercado que consideres importante para el análisis.</div>
-        <textarea id="f-noticia" placeholder="Contexto reciente relevante para el análisis..." oninput="updateProgress()"></textarea>
+
+      <!-- Live transcript -->
+      <div class="chart-card" style="max-height:200px;overflow-y:auto">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Transcripción en vivo</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;line-height:1.7">
+          <div><span style="color:var(--blue);font-weight:700">Carlos:</span> <span style="color:var(--text2)">Mira, el tema es que ya tenemos HubSpot y la verdad funciona bastante bien para nosotros...</span></div>
+          <div><span style="color:var(--green);font-weight:700">Vendedor:</span> <span style="color:var(--text2)">Entiendo, ¿y cómo está siendo el proceso de forecast con HubSpot actualmente?</span></div>
+          <div><span style="color:var(--blue);font-weight:700">Carlos:</span> <span style="color:var(--text2)">Bueno, ahí sí es un poco más manual... el equipo llena los campos pero depende mucho de cada persona...</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="color:var(--amber)">⚠</span><span style="color:var(--amber);font-size:11px;font-weight:600">SEÑAL DE DOLOR DETECTADA — Ver panel derecho</span></div>
+          <div><span style="color:var(--green);font-weight:700">Vendedor:</span> <span style="color:var(--text2)">¿Y eso ha causado alguna sorpresa al cierre de mes o de quarter?</span></div>
+          <div><span style="color:var(--blue);font-weight:700">Carlos:</span> <span style="color:var(--text2)">Jaja sí, la verdad el Q4 del año pasado fue medio desastre porque creímos que íbamos bien y...</span></div>
+        </div>
+      </div>
+
+      <div class="meeting-controls">
+        <button class="ctrl-btn active">🎤</button>
+        <button class="ctrl-btn">📷</button>
+        <button class="ctrl-btn">💻</button>
+        <button class="ctrl-btn">💬</button>
+        <button class="ctrl-btn danger" onclick="endMeeting()">✕ Finalizar</button>
       </div>
     </div>
 
-    <!-- ─── SECCIÓN 5: MATRIZ ─── -->
-    <div class="sec-header" id="sec-matriz">
-      <div class="sec-number">5</div>
-      <div class="sec-title">Matriz de roles comerciales</div>
-      <div class="sec-line"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon">🤖</div>
-        <div class="card-title">Inteligencia comercial por rol</div>
-        <span class="card-badge">IA Asistida</span>
+    <!-- RIGHT: AI panel -->
+    <div class="ai-panel">
+      <!-- Prospect context -->
+      <div class="ai-suggestion" style="border-color:rgba(79,142,247,.3)">
+        <div class="ai-tag" style="color:var(--blue)">📋 Contexto del prospecto</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Score ICP</span><strong style="color:var(--green)">94</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Último toque</span><strong>Email D3 abierto 3x</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Industria</span><strong>SaaS B2B</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Pain identificado</span><strong style="color:var(--amber)">Forecast caótico</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--text3)">Intelligence M1</span><strong style="color:var(--blue)">3 insights disponibles</strong></div>
+        </div>
       </div>
-      <p style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px;font-weight:300">
-        Selecciona los roles a los que le vendes y completa la matriz. El <strong style="color:var(--blue);font-weight:600">asistente de calidad</strong> evalúa cada campo en tiempo real comparándolo con el estándar de matrices comerciales B2B profesionales — te da un score del 1 al 10, feedback directo sobre qué falta, y una versión mejorada si el texto no alcanza el nivel requerido.
-      </p>
-      <div class="rol-selector" id="rol-selector">
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="CEO / Gerente General">CEO / Gerente General</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="Gerente Comercial">Gerente Comercial</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="Gerente de Ventas">Gerente de Ventas</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="Director de Marketing">Director de Marketing</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="Gerente de Operaciones">Gerente de Operaciones</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="Gerente de RRHH">Gerente de RRHH</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="CFO / Gerente Financiero">CFO / Gerente Financiero</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="CTO / Director de Tecnología">CTO / Director Tecnología</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="Gerente de Experiencia de Cliente">Gerente de CX</div>
-        <div class="rol-pill" onclick="toggleRol(this)" data-rol="Socio / Fundador">Socio / Fundador</div>
+
+      <!-- LIVE objection alert -->
+      <div class="ai-suggestion" style="border:2px solid var(--amber);background:rgba(245,158,11,.06)">
+        <div class="ai-tag" style="color:var(--amber)">⚡ OBJECIÓN DETECTADA AHORA</div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">"Ya tenemos HubSpot"</div>
+        <div class="ai-text">No pelees con HubSpot. Reencuadra: HubSpot es CRM, Predictable es la capa de inteligencia encima. Son complementarios.</div>
+        <div style="background:var(--surface2);border-radius:6px;padding:10px;margin-top:8px;font-size:12px;line-height:1.7;color:var(--text)">
+          <strong style="color:var(--amber)">Di esto:</strong><br>
+          "Perfecto que tengan HubSpot — nosotros nos conectamos encima de él. La pregunta no es reemplazarlo, es: ¿están obteniendo predicciones confiables de qué deals van a cerrar este mes, o sigue siendo manual?"
+        </div>
+        <button class="ai-copy">📋 Copiar frase</button>
       </div>
-      <p style="font-size:11px;color:var(--sub);font-style:italic;margin-top:4px">Selecciona un rol para desplegar su tarjeta de análisis.</p>
-    </div>
 
-    <div id="mcard-container"></div>
-    <input type="hidden" id="f-matriz"/>
-
-    <!-- Submit -->
-    <div class="submit-block">
-      <div class="submit-note">
-        Al enviar, toda la información llega directamente a tu Google Sheet de <strong>Predictable.ai</strong> en tiempo real. Podrás regresar y reenviar en cualquier momento con información actualizada.
+      <!-- Positive signal -->
+      <div class="ai-suggestion" style="border-color:rgba(16,185,129,.3)">
+        <div class="ai-tag" style="color:var(--green)">✅ SEÑAL POSITIVA</div>
+        <div class="ai-text">Mencionó "Q4 desastre" — esto es dolor real y urgente. Profundiza: ¿cuánto impacto tuvo en el negocio? ¿qué pasó exactamente?</div>
+        <div style="background:var(--surface2);border-radius:6px;padding:10px;margin-top:8px;font-size:12px;color:var(--text)">
+          <strong style="color:var(--green)">Pregunta ahora:</strong><br>
+          "Cuando dices que fue un desastre el Q4, ¿fue más un problema de visibilidad o de que el equipo no cerró lo que se esperaba?"
+        </div>
+        <button class="ai-copy">📋 Copiar</button>
       </div>
-      <button class="btn-submit" id="btn-submit" onclick="submitForm()">
-        <span class="spinner"></span>Enviar información
-      </button>
-    </div>
-    <div class="toast-success" id="toast">
-      <div class="toast-title">✓ Información enviada correctamente</div>
-      <div class="toast-msg">El equipo de Predictable.ai la recibirá en breve y comenzará a trabajar en tu análisis de mercado.</div>
-    </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
-</div><!-- /app -->
+      <!-- Stage guidance -->
+      <div class="ai-suggestion">
+        <div class="ai-tag" style="color:var(--purple)">🗺 ETAPA ACTUAL</div>
+        <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:6px">Discovery — Profundización del dolor</div>
+        <div class="ai-text">Estás en el momento ideal para el framework SPIN: Situación confirmada ✓, Problema emergiendo. Falta: Implicación y Need-Payoff.</div>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:11px;font-weight:700;color:var(--text3)">PRÓXIMOS PASOS SUGERIDOS</div>
+          <div style="font-size:12px;padding:6px 8px;background:var(--surface2);border-radius:6px">1. Cuantificar el dolor del Q4</div>
+          <div style="font-size:12px;padding:6px 8px;background:var(--surface2);border-radius:6px">2. Preguntar por el impacto en el equipo</div>
+          <div style="font-size:12px;padding:6px 8px;background:var(--surface2);border-radius:6px">3. Plantear la visión del ideal antes del demo</div>
+        </div>
+      </div>
+
+      <!-- Score live -->
+      <div class="ai-suggestion">
+        <div class="ai-tag" style="color:var(--text3)">📊 SCORE EN VIVO</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+          <div class="score-row"><div class="score-label"><span style="font-size:11px">Escucha activa</span><span style="font-size:11px;font-weight:700;color:var(--green)">82%</span></div><div class="score-bar"><div class="score-fill" style="width:82%;background:var(--gradient-green)"></div></div></div>
+          <div class="score-row"><div class="score-label"><span style="font-size:11px">Profundización del dolor</span><span style="font-size:11px;font-weight:700;color:var(--blue)">71%</span></div><div class="score-bar"><div class="score-fill" style="width:71%;background:var(--gradient-blue)"></div></div></div>
+          <div class="score-row"><div class="score-label"><span style="font-size:11px">Control del ritmo</span><span style="font-size:11px;font-weight:700;color:var(--amber)">58%</span></div><div class="score-bar"><div class="score-fill" style="width:58%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></div>
+          <div class="score-row"><div class="score-label"><span style="font-size:11px">Manejo de objeciones</span><span style="font-size:11px;font-weight:700;color:var(--green)">79%</span></div><div class="score-bar"><div class="score-fill" style="width:79%;background:var(--gradient-green)"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ PAGE: VENTAS REPORTES ═══════ -->
+<div class="page fade-in" id="page-ventas-reportes">
+  <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
+    <div><div class="topbar-title">Reportes SDR</div><div class="topbar-sub">Módulo 3 · Visibilidad total sobre el performance del equipo de ventas</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm">↓ Exportar PDF</button>
+      <button class="btn btn-green btn-sm">Enviar al director</button>
+    </div>
+  </div>
+
+  <div class="tabs" style="margin-bottom:16px">
+    <div class="tab active" onclick="switchReportTab(this,'rep-equipo')">👥 Equipo</div>
+    <div class="tab" onclick="switchReportTab(this,'rep-deals')">💰 Deals perdidos</div>
+    <div class="tab" onclick="switchReportTab(this,'rep-objeciones')">🛡 Objeciones</div>
+    <div class="tab" onclick="switchReportTab(this,'rep-meeting')">📄 Última reunión</div>
+  </div>
+
+  <!-- TAB: EQUIPO -->
+  <div id="rep-equipo" class="rep-tab">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="chart-card">
+        <div class="chart-header"><span class="chart-title">Score promedio por SDR</span></div>
+        <div class="chart-wrap"><canvas id="sdrScoreChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><span class="chart-title">Meetings por SDR (últimas 4 semanas)</span></div>
+        <div class="chart-wrap"><canvas id="sdrMeetingsChart"></canvas></div>
+      </div>
+    </div>
+    <div class="table-card" style="margin-top:16px">
+      <div class="table-head"><span style="font-size:14px;font-weight:700">Performance detallado del equipo</span></div>
+      <table>
+        <thead><tr>
+          <th>SDR</th><th>Reuniones</th><th>Score Avg</th><th>Escucha activa</th><th>Objeciones</th><th>Discovery</th><th>Deals avanzados</th><th>Alerta</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Camila Soto</strong></td><td>16</td>
+            <td><span class="pill pill-green">88</span></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:91%;background:var(--gradient-green)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:85%;background:var(--gradient-green)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:88%;background:var(--gradient-green)"></div></div></td>
+            <td>7/16 <span style="color:var(--green)">(44%)</span></td>
+            <td><span class="pill pill-green">Top performer</span></td>
+          </tr>
+          <tr>
+            <td><strong>Miguel Torres</strong></td><td>14</td>
+            <td><span class="pill pill-blue">82</span></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:84%;background:var(--gradient-blue)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:78%;background:var(--gradient-blue)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:80%;background:var(--gradient-blue)"></div></div></td>
+            <td>5/14 <span style="color:var(--blue)">(36%)</span></td>
+            <td><span class="pill pill-amber">Trabajar cierre</span></td>
+          </tr>
+          <tr>
+            <td><strong>Valeria Cruz</strong></td><td>11</td>
+            <td><span class="pill pill-blue">74</span></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:76%;background:var(--gradient-blue)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:61%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:74%;background:var(--gradient-blue)"></div></div></td>
+            <td>4/11 <span style="color:var(--blue)">(36%)</span></td>
+            <td><span class="pill pill-amber">Reforzar objeciones</span></td>
+          </tr>
+          <tr>
+            <td><strong>Diego Reyes</strong></td><td>8</td>
+            <td><span class="pill pill-amber">61</span></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:55%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:63%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div></td>
+            <td><div class="score-bar" style="width:100px"><div class="score-fill" style="width:48%;background:linear-gradient(90deg,#EF4444,#DC2626)"></div></div></td>
+            <td>2/8 <span style="color:var(--red)">(25%)</span></td>
+            <td><span class="pill pill-red">⚠ Necesita coaching</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: DEALS PERDIDOS -->
+  <div id="rep-deals" class="rep-tab" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="chart-card">
+        <div class="chart-header"><span class="chart-title">¿Por qué se pierden los deals?</span></div>
+        <div class="chart-wrap"><canvas id="lostReasonsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><span class="chart-title">En qué etapa se pierden</span></div>
+        <div class="chart-wrap"><canvas id="lostStageChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-top:16px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:16px">Análisis IA — Patrones de pérdida</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--red);margin-bottom:8px">Patrón crítico detectado</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px">Diego pierde deals en discovery</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">Lanza la propuesta antes de entender bien el dolor. En 5 de sus 6 deals perdidos, el prospecto dijo "me tienes que mandar más info" — señal de que no había suficiente urgencia creada.</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--amber);margin-bottom:8px">Patrón recurrente</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px">"Ya tenemos herramienta" sin rebatir</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">Valeria y Miguel no están usando el reencuadre correcto. El 71% de estas objeciones termina en deal perdido cuando el SDR simplemente acepta la respuesta en vez de profundizar.</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--blue);margin-bottom:8px">Oportunidad de mejora</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px">Follow-up post-meeting es débil</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6">Solo el 38% de deals con propuesta enviada tiene un follow-up registrado en los siguientes 3 días. La mayor parte de las pérdidas ocurren en silencio, no por un "no".</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: OBJECIONES -->
+  <div id="rep-objeciones" class="rep-tab" style="display:none">
+    <div class="chart-card">
+      <div class="chart-header"><span class="chart-title">Top objeciones y cómo manejarlas</span><span class="pill pill-blue">Entrenado en tu Knowledge Base</span></div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+          <div style="padding:12px 16px;background:var(--surface2);display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:13px;font-weight:700">"Ya tenemos una herramienta"</span><span class="pill pill-red" style="margin-left:10px">67% de reuniones</span></div>
+            <span style="font-size:12px;color:var(--text3)">Tasa de resolución: 34%</span>
+          </div>
+          <div style="padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.7">
+            <strong style="color:var(--text)">Framework (Chris Orlob):</strong> No pelees con la herramienta. Pregunta: "¿Y esa herramienta les está dando predictabilidad en el forecast?" Si la respuesta es no o dudan, ese es el dolor. Reencuadra: "No somos un reemplazo, somos la capa de inteligencia encima."
+            <br><br>
+            <strong style="color:var(--green)">Script probado:</strong> "Entiendo, ¿y cómo están usando [herramienta] para saber con certeza si el equipo va a cerrar el mes? ¿Hay un número confiable o es más una estimación?"
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+          <div style="padding:12px 16px;background:var(--surface2);display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:13px;font-weight:700">"Mándame más información"</span><span class="pill pill-amber" style="margin-left:10px">41% de reuniones</span></div>
+            <span style="font-size:12px;color:var(--text3)">Tasa de resolución: 21%</span>
+          </div>
+          <div style="padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.7">
+            <strong style="color:var(--text)">Framework ($100M Leads — Hormozi):</strong> "Mándame info" = no hay suficiente dolor articulado todavía. La solución no es mandar el deck, es profundizar el dolor. Siempre responde con: "Con gusto, ¿qué específicamente necesitarías ver para que valga la pena una segunda llamada?"
+            <br><br>
+            <strong style="color:var(--green)">Script:</strong> "Claro — ¿qué sería lo más relevante para ti? ¿El ROI, cómo funciona la integración, o casos de empresas como la tuya?"
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+          <div style="padding:12px 16px;background:var(--surface2);display:flex;justify-content:space-between;align-items:center">
+            <div><span style="font-size:13px;font-weight:700">"No es prioridad ahora"</span><span class="pill pill-blue" style="margin-left:10px">37% de reuniones</span></div>
+            <span style="font-size:12px;color:var(--text3)">Tasa de resolución: 48%</span>
+          </div>
+          <div style="padding:14px 16px;font-size:12px;color:var(--text2);line-height:1.7">
+            <strong style="color:var(--text)">Framework (El Camino del Lobo — Belfort):</strong> Crear urgencia sin presionar. La pregunta es: ¿por qué no es prioridad? Generalmente hay una razón real atrás. Encuentra qué está compitiendo por esa prioridad.
+            <br><br>
+            <strong style="color:var(--green)">Script:</strong> "Tiene sentido. ¿Qué tendría que pasar en los próximos 30 días para que sí se volviera prioridad? ¿Hay un evento o resultado que lo dispare?"
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: ÚLTIMA REUNIÓN -->
+  <div id="rep-meeting" class="rep-tab" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div>
+              <div style="font-size:16px;font-weight:800">SaaS Ventures — Discovery Call</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:3px">Carlos Mendoza · CEO · 14 Abr 2026 · 38 min · Google Meet</div>
+            </div>
+            <span class="pill pill-blue">Score: 77/100</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+            <div style="text-align:center;padding:12px;background:var(--surface2);border-radius:8px">
+              <div style="font-size:20px;font-weight:800;color:var(--green)">82%</div>
+              <div style="font-size:11px;color:var(--text3)">Escucha activa</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--surface2);border-radius:8px">
+              <div style="font-size:20px;font-weight:800;color:var(--blue)">71%</div>
+              <div style="font-size:11px;color:var(--text3)">Profundización</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--surface2);border-radius:8px">
+              <div style="font-size:20px;font-weight:800;color:var(--amber)">58%</div>
+              <div style="font-size:11px;color:var(--text3)">Control ritmo</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--surface2);border-radius:8px">
+              <div style="font-size:20px;font-weight:800;color:var(--green)">79%</div>
+              <div style="font-size:11px;color:var(--text3)">Objeciones</div>
+            </div>
+          </div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px">Resumen ejecutivo</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.8">
+            Reunión de discovery con Carlos Mendoza, CEO de SaaS Ventures (51-200 empleados, MX). Prospecto con <strong style="color:var(--text)">dolor claro y articulado en forecast</strong> — mencionó que el Q4 2025 fue problemático por falta de visibilidad. Tiene HubSpot pero reconoce que el proceso es manual y depende de cada persona en el equipo. <strong style="color:var(--green)">Alta intención de compra.</strong> Próximo paso: demo personalizado enfocado en el módulo de visibility + forecasting.
+          </div>
+        </div>
+        <div class="chart-card">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">Momentos clave detectados por IA</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--green-dim);border-radius:8px">
+              <span style="color:var(--green);font-weight:700;min-width:50px">00:08</span>
+              <div style="font-size:12px"><strong style="color:var(--green)">PAIN POINT</strong> — Mencionó "Q4 desastre" por falta de visibilidad en pipeline</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:rgba(245,158,11,.08);border-radius:8px">
+              <span style="color:var(--amber);font-weight:700;min-width:50px">00:14</span>
+              <div style="font-size:12px"><strong style="color:var(--amber)">OBJECIÓN</strong> — "Ya tenemos HubSpot" → vendedor reencuadró correctamente</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--blue-dim);border-radius:8px">
+              <span style="color:var(--blue);font-weight:700;min-width:50px">00:26</span>
+              <div style="font-size:12px"><strong style="color:var(--blue)">INTERÉS</strong> — Preguntó por integración con HubSpot y tiempo de implementación</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:10px;background:var(--green-dim);border-radius:8px">
+              <span style="color:var(--green);font-weight:700;min-width:50px">00:34</span>
+              <div style="font-size:12px"><strong style="color:var(--green)">COMPROMISO</strong> — Aceptó demo la próxima semana. "Quiero que lo vea también mi director comercial"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="chart-card">
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--green)">✅ Próximos pasos acordados</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+            <div style="display:flex;gap:8px"><span style="color:var(--green)">→</span> Demo personalizado — Vie 18 Abr 10:00</div>
+            <div style="display:flex;gap:8px"><span style="color:var(--green)">→</span> Incluir al Director Comercial</div>
+            <div style="display:flex;gap:8px"><span style="color:var(--green)">→</span> Enviar caso de estudio similar</div>
+            <div style="display:flex;gap:8px"><span style="color:var(--green)">→</span> Preparar ROI estimado</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--amber)">⚠ Áreas de mejora (SDR)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2)">
+            <div>Interrumpió al prospecto 3 veces — trabajar escucha</div>
+            <div>No cuantificó el impacto del Q4 en dinero</div>
+            <div>Cerró sin proponer fecha específica (tuvo que el prospecto)</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--blue)">📊 Probabilidad de cierre</div>
+          <div style="font-size:32px;font-weight:900;color:var(--blue);text-align:center;margin:8px 0">72%</div>
+          <div style="font-size:11px;color:var(--text3);text-align:center">Basado en señales de la reunión + historial del ICP</div>
+          <div style="margin-top:10px;height:6px;background:var(--surface3);border-radius:3px"><div style="width:72%;height:100%;background:var(--gradient-blue);border-radius:3px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
 
 <script>
-'use strict';
+// ── END MEETING ──
+function endMeeting() {
+  nav(document.querySelector('[data-page=ventas-reportes]'), 'ventas-reportes');
+  setTimeout(() => switchReportTab(document.querySelectorAll('#page-ventas-reportes .tab')[3], 'rep-meeting'), 100);
+}
 
-// ═══════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzXzlEPHXFNHty30D9rBvnbHw_gfh3NtwhSiZsS4KMMxJfLzoeuo_jibJnIbLtRBer6Ng/exec';
-const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+// ── REPORT TABS ──
+function switchReportTab(el, tabId) {
+  document.querySelectorAll('#page-ventas-reportes .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.rep-tab').forEach(t => t.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
 
-// ═══════════════════════════════════════════
-// TAG INPUTS
-// ═══════════════════════════════════════════
-function setupTagInput(boxId, inputId, hiddenId) {
-  const box = document.getElementById(boxId);
-  const inp = document.getElementById(inputId);
-  const hid = document.getElementById(hiddenId);
-  const tags = [];
+  // Init charts on demand
+  if (tabId === 'rep-equipo') initReportCharts();
+  if (tabId === 'rep-deals') initDealsCharts();
+}
 
-  function render() {
-    box.querySelectorAll('.tag-chip').forEach(c => c.remove());
-    tags.forEach((tag, i) => {
-      const chip = document.createElement('div');
-      chip.className = 'tag-chip';
-      chip.appendChild(document.createTextNode(tag));
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = '×';
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        tags.splice(i, 1);
-        render();
-        updateProgress();
-      });
-      chip.appendChild(btn);
-      box.insertBefore(chip, inp);
-    });
-    hid.value = tags.join(', ');
-  }
-
-  inp.addEventListener('keydown', function(e) {
-    if ((e.key === 'Enter' || e.key === ',') && this.value.trim()) {
-      e.preventDefault();
-      tags.push(this.value.trim());
-      this.value = '';
-      render();
-      updateProgress();
-    }
+function initReportCharts() {
+  if (window._repChartsInit) return;
+  window._repChartsInit = true;
+  new Chart(document.getElementById('sdrScoreChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Camila Soto','Miguel Torres','Valeria Cruz','Diego Reyes'],
+      datasets: [{ label: 'Score', data: [88,82,74,61], backgroundColor: ['#10B981','#4F8EF7','#4F8EF7','#F59E0B'], borderRadius: 6 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8A9BBF'}}, y:{min:0,max:100,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8A9BBF'}} } }
   });
-  box.addEventListener('click', () => inp.focus());
+  new Chart(document.getElementById('sdrMeetingsChart'), {
+    type: 'bar',
+    data: {
+      labels: ['S12','S13','S14','S15'],
+      datasets: [
+        { label: 'Camila', data: [4,4,4,4], backgroundColor: '#10B981', borderRadius: 3 },
+        { label: 'Miguel', data: [3,4,3,4], backgroundColor: '#4F8EF7', borderRadius: 3 },
+        { label: 'Valeria', data: [2,3,3,3], backgroundColor: '#7C5CFC', borderRadius: 3 },
+        { label: 'Diego', data: [2,2,2,2], backgroundColor: '#F59E0B', borderRadius: 3 },
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#8A9BBF',font:{size:10}}}}, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8A9BBF'}}, y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8A9BBF'}} } }
+  });
 }
 
-setupTagInput('tagbox-canales', 'ti-canales', 'f-canales');
-setupTagInput('tagbox-comp', 'ti-comp', 'f-competidores');
-
-// ═══════════════════════════════════════════
-// RADIO PILLS
-// ═══════════════════════════════════════════
-function selectPill(el, hiddenId) {
-  el.closest('.pill-group').querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById(hiddenId).value = el.dataset.v;
-  updateProgress();
+function initDealsCharts() {
+  if (window._dealsChartsInit) return;
+  window._dealsChartsInit = true;
+  new Chart(document.getElementById('lostReasonsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Ya tienen herramienta','Sin urgencia creada','Precio','No champion interno','Sin follow-up'],
+      datasets: [{ data: [34,22,18,14,12], backgroundColor: ['#EF4444','#F59E0B','#7C5CFC','#4F8EF7','#6B7280'], borderWidth:0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{position:'bottom',labels:{color:'#8A9BBF',font:{size:10},padding:8}}} }
+  });
+  new Chart(document.getElementById('lostStageChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Discovery','Demo','Propuesta','Negociación'],
+      datasets: [{ label: 'Deals perdidos', data: [8,5,7,3], backgroundColor: '#EF4444', borderRadius: 4 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8A9BBF'}}, y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8A9BBF'}} } }
+  });
 }
+</script>
 
-// ═══════════════════════════════════════════
-// PROGRESS
-// ═══════════════════════════════════════════
-const PROGRESS_FIELDS = [
-  'f-nombre', 'f-web', 'f-desc', 'f-cliente', 'f-problema', 'f-canales',
-  'f-productos', 'f-estrella', 'f-ventaja', 'f-tendencia-por', 'f-freno',
-  'f-competidores', 'f-comp-bien', 'f-comp-mal', 'f-pitch', 'f-porq',
-  'f-paises', 'f-sector', 'f-riesgo', 'f-opp',
-  'f-matriz'
-];
-
-function updateProgress() {
-  const clientName = document.getElementById('f-nombre').value.trim();
-  if (clientName) {
-    document.getElementById('sb-client-name').textContent = clientName;
+<!-- ═══════════════════════════════════════════
+  JS — Placeholder for Module 3 pages (injected separately)
+════════════════════════════════════════════ -->
+<script>
+// ── NAVIGATION ──
+function nav(el, pageId) {
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active','m2','m3');
+  });
+  if (el) {
+    el.classList.add('active');
+    if (pageId && (pageId.startsWith('pro-') || pageId === 'pro-overview')) el.classList.add('m2');
+    if (pageId && (pageId.startsWith('ventas-'))) el.classList.add('m3');
   }
-
-  const filled = PROGRESS_FIELDS.filter(id => {
-    const el = document.getElementById(id);
-    return el && el.value.trim().length > 0;
-  }).length;
-
-  const pct = Math.round((filled / PROGRESS_FIELDS.length) * 100);
-  document.getElementById('sb-fill').style.width = pct + '%';
-  document.getElementById('sb-pct-label').textContent = pct + '%';
-  document.getElementById('topbar-pct').textContent = pct + '% completado';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + pageId);
+  if (target) { target.classList.add('active'); target.classList.add('fade-in'); }
+  window.scrollTo(0,0);
 }
 
-// Listen to all inputs
-document.querySelectorAll('input[type="text"], input[type="url"], textarea').forEach(el => {
-  el.addEventListener('input', updateProgress);
-});
-
-// ═══════════════════════════════════════════
-// MATRIZ — CAMPO DEFINITIONS con ejemplos reales
-// ═══════════════════════════════════════════
-const CAMPO_DEFS = {
-  problema: {
-    label: 'Problema',
-    badge: 'mb-problema',
-    badgeText: 'Problema',
-    placeholder: '¿Cuál es el problema central que enfrenta este rol? Escríbelo desde su perspectiva, no desde tu producto. Usa bullets cortos.',
-    criterio: 'Debe estar escrito desde la perspectiva del ejecutivo, en bullets concisos (con guion), sin mencionar la solución. Específico para este rol — no genérico.',
-    ejemplos: [
-      '- Alta tasa de rotación de clientes que cambian fácilmente por precio o promociones.\n- Dependencia de promociones de precio para atraer o retener usuarios, lo cual erosiona márgenes.\n- Retos para retención y fidelización, impactando la rentabilidad del negocio.',
-      '- Canales tradicionales (teléfono, mail) saturados y poco eficientes.\n- Dificultad para ofrecer una experiencia homogénea y trazable en todos los puntos de contacto.',
-      '- Dificultad para atraer y retener talento con beneficios diferenciadores.\n- Altos niveles de rotación en áreas críticas (atención, soporte, ventas).',
-      '- Dificultad para garantizar disponibilidad y desempeño uniforme de la red de proveedores.\n- Baja visibilidad en tiempo real del desempeño de proveedores.'
-    ]
-  },
-  sintomas: {
-    label: 'Síntomas',
-    badge: 'mb-sintomas',
-    badgeText: 'Síntomas',
-    placeholder: '¿Qué señales visibles experimenta este rol que delatan el problema? Evidencias observables, no causas.',
-    criterio: 'Evidencias observables en el día a día de este rol. Lo que VE y SIENTE. No son causas ni consecuencias — son señales concretas que indican que el problema existe.',
-    ejemplos: [
-      '- Tiempos de espera elevados; clientes frustrados; consultas sin respuesta.\n- Percepción de que todos los planes "ofrecen lo mismo".\n- Baja atracción hacia campañas sin beneficios tangibles.',
-      '- Altos tiempos de respuesta.\n- Quejas recurrentes de clientes.\n- Reprocesos y errores en asignaciones.\n- Falta de información centralizada.',
-      '- Empleados perciben los beneficios actuales como limitados o poco relevantes.\n- Quejas relacionadas con falta de apoyo en salud, bienestar o emergencias.',
-      '- Reclamos frecuentes por incumplimiento.\n- Costos operativos elevados.\n- Equipo desgastado por manejo manual de quejas.'
-    ]
-  },
-  impacto: {
-    label: 'Impacto negativo',
-    badge: 'mb-impacto',
-    badgeText: 'Impacto',
-    placeholder: '¿Qué consecuencias reales tiene si el problema no se resuelve? Financiero, operativo, humano.',
-    criterio: 'Consecuencias concretas si no se resuelve. Debe incluir al menos una dimensión financiera u operativa específica. Cuantificable cuando sea posible. Conectado con el problema descrito.',
-    ejemplos: [
-      '- Reducción en rentabilidad y cuota de mercado.\n- Pérdida de participación de mercado frente a competidores más agresivos.\n- Dificultad para diferenciar la empresa frente a la competencia.',
-      '- Retrasos en resolución de casos, sobrecarga en atención, incremento de costos por reprocesos.',
-      '- Costos elevados por rotación y procesos de selección.\n- Disminución del compromiso y productividad del personal.',
-      '- Pérdida de contratos clave por incumplimiento de SLA.\n- Elevación de costos operativos por ineficiencia logística.'
-    ]
-  },
-  solucion: {
-    label: 'Solución propuesta',
-    badge: 'mb-solucion',
-    badgeText: 'Solución',
-    placeholder: '¿Cómo resuelve específicamente tu producto o servicio el problema de ESTE rol? Conecta directamente con el problema descrito.',
-    criterio: 'Debe conectar directamente con el problema descrito. Sin lenguaje genérico de ventas. Específico para las responsabilidades y dolores de este rol. Menciona la solución concreta.',
-    ejemplos: [
-      '- Generar ingresos adicionales: implementamos programas de asistencia que los clientes pueden adquirir como beneficios premium, con participación en ingresos para la empresa.\n- Posicionar la compañía no solo como proveedor de conectividad, sino como aliado integral.',
-      '- Plataforma omnicanal que centraliza todos los canales (voz, chat, mail, redes) en una única vista.\n- Encuestas integradas y calificaciones de servicio para seguimiento y mejora continua.',
-      '- Implementar programas de asistencia para colaboradores (salud, hogar, auto, viaje) como parte del paquete de beneficios.\n- Acompañamiento 24/7 que incrementa la percepción de respaldo de la empresa hacia sus empleados.',
-      '- Plataforma con monitoreo en tiempo real, geolocalización de proveedores, reportería en línea y asignación automática en menos de 40 segundos.'
-    ]
-  },
-  resultados: {
-    label: 'Resultados esperados',
-    badge: 'mb-resultado',
-    badgeText: 'Resultados',
-    placeholder: '¿Qué resultado concreto y medible obtiene este rol con tu solución? Incluye métricas o porcentajes cuando sea posible.',
-    criterio: 'Resultados cuantitativos o cualitativos concretos. Con porcentajes, tiempos o métricas cuando sea posible. Sin promesas vagas. Conectados con el impacto que se quiere eliminar.',
-    ejemplos: [
-      '- Mejora del NPS y satisfacción del cliente en un 20% (con tasas históricas >96%).\n- Transparencia en reportería 100%.',
-      '- Reducción del 25% en la carga de canales tradicionales.\n- Disminución de costos operativos en hasta un 40% gracias a la optimización de procesos.',
-      '- Reducción de costos operativos hasta en 40%.\n- Cumplimiento de SLA con mayor eficiencia.\n- Experiencia de usuario con visibilidad completa de la asignación de su servicio.',
-      '- Optimización de costos hasta en 40%.\n- 100% transparencia en gastos.\n- Mayor previsibilidad financiera y reducción de costos ocultos.'
-    ]
+// ── CHARTS ──
+const chartDefaults = {
+  color: '#8A9BBF',
+  plugins: { legend: { labels: { color: '#8A9BBF', font: { size: 11 } } } },
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A9BBF', font: { size: 11 } } },
+    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A9BBF', font: { size: 11 } } }
   }
 };
 
-const CAMPO_KEYS = ['problema', 'sintomas', 'impacto', 'solucion', 'resultados'];
-
-// ═══════════════════════════════════════════
-// MATRIZ CARDS
-// ═══════════════════════════════════════════
-const rolesActivos = new Set();
-const aiTimers = {};
-const aiLastText = {};
-window._aiSuggestions = {};
-
-function sanitizeId(str) {
-  return str.replace(/[^a-zA-Z0-9]/g, '_');
-}
-
-function toggleRol(el) {
-  const rol = el.dataset.rol;
-  if (rolesActivos.has(rol)) {
-    rolesActivos.delete(rol);
-    el.classList.remove('on');
-    const card = document.getElementById('mc-' + sanitizeId(rol));
-    if (card) card.remove();
-  } else {
-    rolesActivos.add(rol);
-    el.classList.add('on');
-    buildMatrizCard(rol);
-  }
-  syncMatriz();
-}
-
-function getInitials(rol) {
-  return rol
-    .split(/[\s\/\-]+/)
-    .filter(w => w.length > 2)
-    .slice(0, 2)
-    .map(w => w[0].toUpperCase())
-    .join('');
-}
-
-function buildMatrizCard(rol) {
-  const id = sanitizeId(rol);
-  const container = document.getElementById('mcard-container');
-  const card = document.createElement('div');
-  card.className = 'mcard';
-  card.id = 'mc-' + id;
-
-  // Build 2x2 grid for first 4 campos + full-width resultados
-  const campos4 = CAMPO_KEYS.slice(0, 4);
-  const gridHTML = campos4.map(k => {
-    const def = CAMPO_DEFS[k];
-    return `
-      <div class="mfield">
-        <div class="mfield-label">
-          <span class="mfield-badge ${def.badge}">${def.badgeText}</span>
-          <span class="mfield-title">${def.label}</span>
-        </div>
-        <textarea
-          id="mf-${k}-${id}"
-          data-rolid="${id}"
-          data-campo="${k}"
-          data-rolname="${rol.replace(/"/g, '&quot;')}"
-          placeholder="${def.placeholder}"
-          oninput="syncMatriz(); triggerAI(this.dataset.rolid, this.dataset.campo, this.value, this.dataset.rolname)"
-        ></textarea>
-        <div class="ai-panel" id="ai-${k}-${id}">
-          <div class="ai-panel-top">
-            <span class="ai-icon-star">✦</span>
-            <span class="ai-label">Asistente de calidad</span>
-            <div class="ai-thinking-dots" id="ai-dots-${k}-${id}" style="display:none">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="ai-panel-body" id="ai-body-${k}-${id}"></div>
-        </div>
-      </div>`;
-  }).join('');
-
-  const rDef = CAMPO_DEFS.resultados;
-  card.innerHTML = `
-    <div class="mcard-header" onclick="toggleMCard('${id}')">
-      <div class="mcard-left">
-        <div class="mcard-avatar">${getInitials(rol)}</div>
-        <div>
-          <div class="mcard-role">${rol}</div>
-          <div class="mcard-status">Completa los 5 campos del análisis</div>
-        </div>
-      </div>
-      <span class="mcard-chevron open" id="mchev-${id}">▾</span>
-    </div>
-    <div class="mcard-body open" id="mb-${id}">
-      <div class="matriz-grid">${gridHTML}</div>
-      <div class="mfield" style="margin-top:4px">
-        <div class="mfield-label">
-          <span class="mfield-badge ${rDef.badge}">${rDef.badgeText}</span>
-          <span class="mfield-title">${rDef.label}</span>
-        </div>
-        <textarea
-          id="mf-resultados-${id}"
-          data-rolid="${id}"
-          data-campo="resultados"
-          data-rolname="${rol.replace(/"/g, '&quot;')}"
-          style="min-height:68px"
-          placeholder="${rDef.placeholder}"
-          oninput="syncMatriz(); triggerAI(this.dataset.rolid, 'resultados', this.value, this.dataset.rolname)"
-        ></textarea>
-        <div class="ai-panel" id="ai-resultados-${id}">
-          <div class="ai-panel-top">
-            <span class="ai-icon-star">✦</span>
-            <span class="ai-label">Asistente de calidad</span>
-            <div class="ai-thinking-dots" id="ai-dots-resultados-${id}" style="display:none">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-          <div class="ai-panel-body" id="ai-body-resultados-${id}"></div>
-        </div>
-      </div>
-    </div>`;
-
-  container.appendChild(card);
-}
-
-function toggleMCard(id) {
-  const body = document.getElementById('mb-' + id);
-  const chev = document.getElementById('mchev-' + id);
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  body.style.display = isOpen ? 'none' : 'block';
-  chev.classList.toggle('open', !isOpen);
-}
-
-function syncMatriz() {
-  const data = {};
-  rolesActivos.forEach(rol => {
-    const id = sanitizeId(rol);
-    data[rol] = {};
-    CAMPO_KEYS.forEach(k => {
-      const el = document.getElementById(`mf-${k}-${id}`);
-      data[rol][k] = el ? el.value : '';
-    });
+window.addEventListener('DOMContentLoaded', () => {
+  // Pipeline chart
+  new Chart(document.getElementById('pipelineChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Sem 12','Sem 13','Sem 14','Sem 15'],
+      datasets: [
+        { label: 'Emails enviados', data: [280, 310, 295, 340], backgroundColor: 'rgba(79,142,247,0.5)', borderRadius: 4 },
+        { label: 'Replies', data: [22, 28, 25, 31], backgroundColor: 'rgba(124,92,252,0.6)', borderRadius: 4 },
+        { label: 'Meetings', data: [8, 10, 9, 11], backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 4 }
+      ]
+    },
+    options: { ...chartDefaults, responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#8A9BBF', font: { size: 11 } } } } }
   });
-  document.getElementById('f-matriz').value = JSON.stringify(data);
-  updateProgress();
-}
 
-// ═══════════════════════════════════════════
-// AI FEEDBACK — INMEDIATO Y DIRECTO
-// ═══════════════════════════════════════════
-function triggerAI(rolId, campo, text, rolName) {
-  const timerKey = rolId + '_' + campo;
+  // Channel donut
+  new Chart(document.getElementById('channelChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Email', 'LinkedIn', 'WhatsApp', 'SMS'],
+      datasets: [{ data: [52, 28, 14, 6], backgroundColor: ['#4F8EF7','#7C5CFC','#10B981','#F59E0B'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8A9BBF', font: { size: 11 }, padding: 12 } } }, cutout: '65%' }
+  });
 
-  clearTimeout(aiTimers[timerKey]);
-
-  const panel    = document.getElementById(`ai-${campo}-${rolId}`);
-  const dotsEl   = document.getElementById(`ai-dots-${campo}-${rolId}`);
-  const bodyEl   = document.getElementById(`ai-body-${campo}-${rolId}`);
-
-  // Activar panel desde el primer carácter útil (threshold muy bajo: 8 chars)
-  if (!text || text.trim().length < 8) {
-    panel.classList.remove('visible');
-    return;
-  }
-
-  // Mostrar panel inmediatamente con spinner
-  panel.classList.add('visible');
-  dotsEl.style.display = 'flex';
-  bodyEl.innerHTML = '';
-
-  // Debounce de 1.2 segundos para no llamar en cada tecla
-  aiTimers[timerKey] = setTimeout(() => {
-    if (text === aiLastText[timerKey]) return;
-    aiLastText[timerKey] = text;
-    callClaudeAI(rolId, campo, text, rolName, dotsEl, bodyEl);
-  }, 1200);
-}
-
-async function callClaudeAI(rolId, campo, text, rolName, dotsEl, bodyEl) {
-  const def = CAMPO_DEFS[campo];
-  const ejemplosCombinados = def.ejemplos.join('\n\n---\n\n');
-
-  const empresa   = document.getElementById('f-nombre').value || '(no especificada aún)';
-  const producto  = document.getElementById('f-productos').value || document.getElementById('f-estrella').value || '(no especificado aún)';
-  const problema  = document.getElementById('f-problema').value || '(no especificado aún)';
-  const ventaja   = document.getElementById('f-ventaja').value || '(no especificada aún)';
-
-  const prompt = `Eres un experto en revenue operations y construcción de matrices de inteligencia comercial B2B de alto nivel. Tu trabajo es evaluar y mejorar el campo "${def.label}" de la matriz para el rol "${rolName}".
-
-CONTEXTO DE LA EMPRESA:
-- Empresa: ${empresa}
-- Producto/Servicio: ${producto}
-- Problema que resuelven: ${problema}
-- Ventaja competitiva: ${ventaja}
-
-CRITERIO ESTRICTO PARA EL CAMPO "${def.label}":
-${def.criterio}
-
-EJEMPLOS REALES DEL ESTÁNDAR (matrices B2B profesionales — este es el nivel que debe alcanzar):
-${ejemplosCombinados}
-
-TEXTO INGRESADO POR EL USUARIO PARA "${rolName}":
-"${text}"
-
-INSTRUCCIONES DE EVALUACIÓN:
-1. Compara el texto del usuario con los ejemplos del estándar. Sé ESTRICTO y DIRECTO.
-2. Si el texto es demasiado corto, genérico, en prosa (sin bullets), o no refleja la perspectiva del ${rolName} sino del vendedor — puntúa bajo (1-4).
-3. Si tiene buena dirección pero le falta especificidad, bullets o profundidad — puntúa medio (5-7).
-4. Solo puntúa alto (8-10) si realmente alcanza el nivel de los ejemplos: bullets concretos, perspectiva del rol, sin lenguaje de vendedor.
-5. SIEMPRE proporciona la sugerencia a menos que el score sea 9 o 10. Incluso scores de 7-8 deben tener sugerencia mejorada.
-
-Responde SOLO en JSON sin backticks ni markdown:
-{
-  "score": <número entero del 1 al 10>,
-  "evaluacion": "<2-3 frases directas y honestas: qué está bien, exactamente qué falta, y por qué no alcanza el estándar aún>",
-  "sugerencia": "<reescritura completa del texto del usuario con el formato de bullets, la especificidad y la perspectiva de los ejemplos del estándar, adaptado al contexto de la empresa del usuario. null solo si score es 9 o 10>"
-}`;
-
-  try {
-    const response = await fetch(CLAUDE_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: 700,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!response.ok) throw new Error('API error: ' + response.status);
-
-    const data = await response.json();
-    const rawText = data.content[0].text.trim().replace(/```json|```/g, '');
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON found');
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    dotsEl.style.display = 'none';
-    renderAIFeedback(parsed, rolId, campo, bodyEl);
-
-  } catch (err) {
-    dotsEl.style.display = 'none';
-    // En caso de error, mostrar mensaje útil en lugar de "no se pudo analizar"
-    bodyEl.innerHTML = `
-      <div class="ai-score-row score-lo">
-        <div class="ai-score-track">
-          <div class="ai-score-fill" style="width:30%"></div>
-        </div>
-        <span class="ai-score-label">Analizando...</span>
-      </div>
-      <div class="ai-feedback-text">Sigue escribiendo — el asistente evaluará tu respuesta cuando tengas más contenido.</div>`;
-  }
-}
-
-function renderAIFeedback(parsed, rolId, campo, bodyEl) {
-  const score = Math.min(10, Math.max(1, parseInt(parsed.score) || 1));
-  const scoreClass = score >= 8 ? 'score-hi' : score >= 5 ? 'score-mid' : 'score-lo';
-  const scoreLabel = score >= 8 ? `${score}/10 — Excelente` : score >= 5 ? `${score}/10 — Mejorable` : `${score}/10 — Incompleto`;
-  const fillPct = Math.round((score / 10) * 100);
-
-  const storeKey = `${rolId}_${campo}`;
-  if (parsed.sugerencia && parsed.sugerencia !== 'null') {
-    window._aiSuggestions[storeKey] = parsed.sugerencia;
-  }
-
-  let html = `
-    <div class="ai-score-row ${scoreClass}">
-      <div class="ai-score-track">
-        <div class="ai-score-fill" style="width:${fillPct}%"></div>
-      </div>
-      <span class="ai-score-label">${scoreLabel}</span>
-    </div>
-    <div class="ai-feedback-text">${parsed.evaluacion || ''}</div>`;
-
-  if (parsed.sugerencia && parsed.sugerencia !== 'null') {
-    const fieldId = `mf-${campo}-${rolId}`;
-    html += `
-      <div class="ai-suggestion">
-        <div class="ai-suggestion-label">✦ Versión al estándar</div>
-        <div class="ai-suggestion-text">${parsed.sugerencia.replace(/\n/g, '<br>')}</div>
-        <button class="btn-apply" onclick="applySuggestion('${fieldId}', '${storeKey}', '${campo}', '${rolId}')">
-          Aplicar esta versión →
-        </button>
-      </div>`;
-  }
-
-  bodyEl.innerHTML = html;
-}
-
-function applySuggestion(fieldId, storeKey, campo, rolId) {
-  const field = document.getElementById(fieldId);
-  const suggestion = (window._aiSuggestions || {})[storeKey];
-  if (field && suggestion) {
-    field.value = suggestion;
-    syncMatriz();
-    const bodyEl = document.getElementById(`ai-body-${campo}-${rolId}`);
-    if (bodyEl) {
-      bodyEl.innerHTML = `
-        <div class="ai-score-row score-hi">
-          <div class="ai-score-track"><div class="ai-score-fill" style="width:100%"></div></div>
-          <span class="ai-score-label">Versión aplicada</span>
-        </div>
-        <div class="ai-feedback-text" style="color:var(--ok)">✓ Se aplicó la versión sugerida. Puedes editarla y personalizarla.</div>`;
+  // Positioning scatter
+  new Chart(document.getElementById('posChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [
+        { label: 'Predictable.ai', data: [{x:7,y:8}], backgroundColor: '#4F8EF7', pointRadius: 12 },
+        { label: 'Clari', data: [{x:8,y:6}], backgroundColor: '#7C5CFC', pointRadius: 10 },
+        { label: 'GoHighLevel', data: [{x:3,y:7}], backgroundColor: '#F59E0B', pointRadius: 10 },
+        { label: 'respond.io', data: [{x:4,y:4}], backgroundColor: '#10B981', pointRadius: 10 },
+        { label: 'Salesforce', data: [{x:9,y:9}], backgroundColor: '#EF4444', pointRadius: 10 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8A9BBF', font: { size: 11 } } } },
+      scales: {
+        x: { min:0, max:10, title: { display:true, text:'Precio', color:'#4E5F7A' }, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A9BBF' } },
+        y: { min:0, max:10, title: { display:true, text:'Amplitud de funciones', color:'#4E5F7A' }, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8A9BBF' } }
+      }
     }
-  }
+  });
+
+  // Trends line chart
+  new Chart(document.getElementById('trendsChart'), {
+    type: 'line',
+    data: {
+      labels: ['May','Jun','Jul','Ago','Sep','Oct','Nov','Dic','Ene','Feb','Mar','Abr'],
+      datasets: [
+        { label: 'revenue operations', data: [42,45,44,48,52,55,58,54,62,68,71,78], borderColor:'#4F8EF7', backgroundColor:'rgba(79,142,247,0.08)', tension:.4, fill:true, pointRadius:3 },
+        { label: 'sales forecast ai', data: [28,30,33,35,38,42,45,48,52,58,63,70], borderColor:'#7C5CFC', backgroundColor:'rgba(124,92,252,0.08)', tension:.4, fill:true, pointRadius:3 },
+        { label: 'crm alternativa', data: [35,33,36,34,37,35,38,40,42,41,44,47], borderColor:'#10B981', tension:.4, pointRadius:3 }
+      ]
+    },
+    options: { ...chartDefaults, responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#8A9BBF', font: { size: 10 } } } } }
+  });
+});
+
+// ── MSG TABS ──
+function switchMsgTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.msg-tab').forEach(t => t.style.display = 'none');
+  document.getElementById(tabId).style.display = 'block';
 }
 
-// ═══════════════════════════════════════════
-// SUBMIT
-// ═══════════════════════════════════════════
-async function submitForm() {
-  const submitBtn = document.getElementById('btn-submit');
-  const sbBtn = document.getElementById('sb-save-btn');
-
-  submitBtn.disabled = true;
-  sbBtn.disabled = true;
-  submitBtn.classList.add('loading');
-  const lastChild = submitBtn.lastChild;
-  if (lastChild && lastChild.nodeType === 3) {
-    submitBtn.lastChild.textContent = ' Enviando...';
-  }
-
-  function val(id) {
-    const el = document.getElementById(id);
-    return el ? el.value.trim() : '';
-  }
-
-  const payload = {
-    timestamp:     new Date().toISOString(),
-    // Sección 1
-    nombre:        val('f-nombre'),
-    web:           val('f-web'),
-    descripcion:   val('f-desc'),
-    anos:          val('f-anos'),
-    empleados:     val('f-emp'),
-    ciudades:      val('f-ciudades'),
-    sociedad:      val('f-sociedad'),
-    cliente:       val('f-cliente'),
-    problema:      val('f-problema'),
-    n_clientes:    val('f-nclientes'),
-    ticket:        val('f-ticket'),
-    top_clientes:  val('f-top-clientes'),
-    canales:       val('f-canales'),
-    // Sección 2
-    productos:     val('f-productos'),
-    estrella:      val('f-estrella'),
-    precio:        val('f-precio'),
-    precio_razon:  val('f-precio-por'),
-    entrega:       val('f-entrega'),
-    ventaja:       val('f-ventaja'),
-    tendencia:     val('f-tendencia'),
-    tendencia_por: val('f-tendencia-por'),
-    freno:         val('f-freno'),
-    gap:           val('f-gap'),
-    // Sección 3
-    competidores:  val('f-competidores'),
-    comp_bien:     val('f-comp-bien'),
-    comp_mal:      val('f-comp-mal'),
-    importados:    val('f-importados'),
-    comp_precio:   val('f-comp-precio'),
-    pitch:         val('f-pitch'),
-    porq:          val('f-porq'),
-    nuevos_comp:   val('f-nuevos-comp'),
-    // Sección 4
-    paises:        val('f-paises'),
-    expansion:     val('f-expansion'),
-    sector:        val('f-sector'),
-    sector_por:    val('f-sector-por'),
-    cambios:       val('f-cambios'),
-    market_size:   val('f-market-size'),
-    riesgo:        val('f-riesgo'),
-    opp:           val('f-opp'),
-    proveedor:     val('f-proveedor'),
-    estado:        val('f-estado'),
-    noticia:       val('f-noticia'),
-    // Sección 5
-    matriz:        val('f-matriz'),
-  };
-
-  try {
-    await fetch(SHEETS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    document.getElementById('toast').style.display = 'block';
-    submitBtn.classList.remove('loading');
-    submitBtn.lastChild.textContent = ' ✓ Enviado';
-    document.getElementById('toast').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  } catch (err) {
-    submitBtn.disabled = false;
-    sbBtn.disabled = false;
-    submitBtn.classList.remove('loading');
-    submitBtn.lastChild.textContent = ' Enviar información';
-    alert('Error al enviar. Verifica tu conexión e intenta de nuevo.');
-  }
+// ── APOLLO ──
+function launchApollo() {
+  const btn = document.querySelector('[onclick="launchApollo()"]');
+  if(btn) { btn.textContent = '⏳ Buscando...'; btn.disabled = true; }
+  setTimeout(() => {
+    if(btn) { btn.textContent = '✓ 487 contactos encontrados'; btn.style.background = 'var(--gradient-green)'; }
+    const results = document.getElementById('apollo-results');
+    if(results) { results.style.display='block'; results.classList.add('fade-in'); }
+    // Advance step
+    const steps = document.querySelectorAll('#page-pro-apollo .step');
+    if(steps[1]) { steps[1].classList.remove('active'); steps[1].classList.add('done'); steps[1].querySelector('.step-num').textContent='✓'; }
+    if(steps[2]) { steps[2].classList.add('active'); }
+  }, 1800);
 }
 
-// Init
-updateProgress();
+// ── ANALYSIS ──
+function runAnalysis() {
+  const btn = document.querySelector('[onclick="runAnalysis()"]');
+  if(btn) { btn.textContent = '⏳ Analizando...'; btn.disabled = true; }
+  setTimeout(() => {
+    if(btn) { btn.textContent = '✓ Análisis listo'; btn.style.background = 'var(--gradient-green)'; }
+    nav(document.querySelector('[data-page=mi-dashboard]'), 'mi-dashboard');
+  }, 2000);
+}
 </script>
 </body>
 </html>
