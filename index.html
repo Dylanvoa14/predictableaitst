@@ -952,7 +952,7 @@
   <div class="topbar" style="position:relative;top:0;margin:-28px -28px 0;width:calc(100% + 56px)">
     <div><div class="topbar-title">ICP Builder</div><div class="topbar-sub">Módulo 2 · Basado en Josh's Targeting Framework + Chris Orlob Playbook</div></div>
     <div class="topbar-actions">
-      <button class="btn btn-ghost btn-sm">Guardar ICP</button>
+      <button class="btn btn-ghost btn-sm" onclick="icpBuilder.saveICP(this)">Guardar ICP</button>
       <button class="btn btn-purple btn-sm" onclick="nav(document.querySelector('[data-page=pro-apollo]'),'pro-apollo')">Buscar en Apollo →</button>
     </div>
   </div>
@@ -963,13 +963,13 @@
       <div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--purple)">🏢 Firmográfico</div>
       <div class="form-grid" style="grid-template-columns:1fr">
         <div class="form-group"><label>Países objetivo</label>
-          <select multiple style="height:80px"><option selected>México</option><option selected>Colombia</option><option selected>Perú</option><option>Chile</option><option>Argentina</option></select></div>
+          <select multiple  data-icp="countries" style="height:80px"><option selected>México</option><option selected>Colombia</option><option selected>Perú</option><option>Chile</option><option>Argentina</option></select></div>
         <div class="form-group"><label>Industrias</label>
-          <select multiple style="height:80px"><option selected>SaaS / Tecnología</option><option selected>Servicios Profesionales</option><option>E-commerce</option><option selected>Real Estate</option></select></div>
+          <select multiple data-icp="industries" style="height:80px"><option selected>SaaS / Tecnología</option><option selected>Servicios Profesionales</option><option>E-commerce</option><option selected>Real Estate</option></select></div>
         <div class="form-group"><label>Tamaño de empresa</label>
-          <select multiple style="height:60px"><option>1-10</option><option selected>11-50</option><option selected>51-200</option><option>201-500</option></select></div>
+          <select multiple data-icp="company_sizes" style="height:60px"><option>1-10</option><option selected>11-50</option><option selected>51-200</option><option>201-500</option></select></div>
         <div class="form-group"><label>Tipo de cliente</label>
-          <select><option selected>B2B</option><option>B2C</option><option>Mixto</option></select></div>
+          <select data-icp="client_type"><option selected>B2B</option><option>B2C</option><option>Mixto</option></select></div>
       </div>
     </div>
 
@@ -978,11 +978,11 @@
       <div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--blue)">🧠 Psicográfico (Dolor)</div>
       <div class="form-grid" style="grid-template-columns:1fr">
         <div class="form-group"><label>Cargo del decisor</label>
-          <select multiple style="height:80px"><option selected>CEO / Founder</option><option selected>Director de Ventas</option><option selected>Head of Revenue</option><option>CFO</option><option>VP Sales</option></select></div>
+          <select multiple data-icp="titles" style="height:80px"><option selected>CEO / Founder</option><option selected>Director de Ventas</option><option selected>Head of Revenue</option><option>CFO</option><option>VP Sales</option></select></div>
         <div class="form-group"><label>Área de decisión</label>
-          <select multiple style="height:60px"><option selected>Ventas</option><option selected>Operaciones Comerciales</option><option>Marketing</option><option>Finanzas</option></select></div>
+          <select multiple data-icp="areas" style="height:60px"><option selected>Ventas</option><option selected>Operaciones Comerciales</option><option>Marketing</option><option>Finanzas</option></select></div>
         <div class="form-group"><label>Trigger events (señales de compra)</label>
-          <select multiple style="height:80px"><option selected>Contrató nuevos SDRs</option><option selected>Nuevo director de ventas</option><option>Levantó capital</option><option selected>Perdió deals grandes</option><option>Expansión a nuevo país</option></select></div>
+          <select multiple data-icp="triggers" style="height:80px"><option selected>Contrató nuevos SDRs</option><option selected>Nuevo director de ventas</option><option>Levantó capital</option><option selected>Perdió deals grandes</option><option>Expansión a nuevo país</option></select></div>
       </div>
     </div>
 
@@ -991,11 +991,11 @@
       <div style="font-size:14px;font-weight:800;margin-bottom:16px;color:var(--red)">🚫 ICP Negativo (Excluir)</div>
       <div class="form-grid" style="grid-template-columns:1fr">
         <div class="form-group"><label>Industrias a excluir</label>
-          <input type="text" value="Gobierno, ONGs, Educación pública, B2C puro"></div>
+          <input type="text" value="Gobierno, ONGs, Educación pública, B2C puro" data-icp="negative_industries"></div>
         <div class="form-group"><label>Tamaños a excluir</label>
-          <select multiple style="height:60px"><option selected>1-10 (sin presupuesto)</option><option>500+ (ciclo demasiado largo)</option></select></div>
+          <select multiple data-icp="negative_sizes" style="height:60px"><option selected>1-10 (sin presupuesto)</option><option>500+ (ciclo demasiado largo)</option></select></div>
         <div class="form-group"><label>Exclusión explícita (clientes pasados, competidores)</label>
-          <textarea style="height:60px" placeholder="Nombres de empresas a excluir..."></textarea></div>
+          <textarea data-icp="excluded_companies" style="height:60px" placeholder="Nombres de empresas a excluir..."></textarea></div>
       </div>
     </div>
 
@@ -1036,17 +1036,17 @@
     <div style="font-size:15px;font-weight:800;margin-bottom:18px">Criterios de búsqueda (desde ICP)</div>
     <div class="form-grid">
       <div class="form-group"><label>Títulos a buscar</label>
-        <input type="text" value="CEO, Founder, Director de Ventas, VP Sales, Head of Revenue"></div>
+        <input type="text" value="CEO, Founder, Director de Ventas, VP Sales, Head of Revenue" data-apollo="titles"></div>
       <div class="form-group"><label>Industrias</label>
-        <input type="text" value="SaaS, Tech, Professional Services, Real Estate"></div>
+        <input type="text" value="SaaS, Tech, Professional Services, Real Estate" data-apollo="industries"></div>
       <div class="form-group"><label>Países</label>
-        <input type="text" value="Mexico, Colombia, Peru, Chile"></div>
+        <input type="text" value="Mexico, Colombia, Peru, Chile" data-apollo="countries"></div>
       <div class="form-group"><label>Tamaño empresa (empleados)</label>
-        <input type="text" value="11-200"></div>
+        <input type="text" value="11-200" data-apollo="company_sizes"></div>
       <div class="form-group"><label>Keywords en bio/descripción</label>
-        <input type="text" value="revenue, sales, growth, B2B"></div>
+        <input type="text" value="revenue, sales, growth, B2B" data-apollo="keywords"></div>
       <div class="form-group"><label>Secuencia destino</label>
-        <select><option selected>SaaS CEOs LATAM Q2</option><option>Head of Sales - MX</option><option>+ Crear nueva secuencia</option></select></div>
+        <select data-apollo="sequence_dest"><option selected>SaaS CEOs LATAM Q2</option><option>Head of Sales - MX</option><option>+ Crear nueva secuencia</option></select></div>
     </div>
     <div style="margin-top:20px;display:flex;gap:12px">
       <button class="btn btn-purple" onclick="launchApollo()">🔍 Buscar en Apollo · ~500 contactos estimados</button>
@@ -1826,20 +1826,16 @@ function switchMsgTab(el, tabId) {
   document.getElementById(tabId).style.display = 'block';
 }
 
-// ── APOLLO ──
+// ── APOLLO (real, vía Apps Script + Apollo API) ──
+
 function launchApollo() {
+
   const btn = document.querySelector('[onclick="launchApollo()"]');
-  if(btn) { btn.textContent = '⏳ Buscando...'; btn.disabled = true; }
-  setTimeout(() => {
-    if(btn) { btn.textContent = '✓ 487 contactos encontrados'; btn.style.background = 'var(--gradient-green)'; }
-    const results = document.getElementById('apollo-results');
-    if(results) { results.style.display='block'; results.classList.add('fade-in'); }
-    // Advance step
-    const steps = document.querySelectorAll('#page-pro-apollo .step');
-    if(steps[1]) { steps[1].classList.remove('active'); steps[1].classList.add('done'); steps[1].querySelector('.step-num').textContent='✓'; }
-    if(steps[2]) { steps[2].classList.add('active'); }
-  }, 1800);
+
+  apolloSequences.runSearch(btn);
+
 }
+
 
 // ── ANALYSIS ──
 function runAnalysis() {
@@ -1851,5 +1847,17 @@ function runAnalysis() {
   }, 2000);
 }
 </script>
+<!-- Predictable.ai — Integración Apps Script + Apollo -->
+
+<script src="js/config.js"></script>
+
+<script src="js/ui-helpers.js"></script>
+
+<script src="js/api.js"></script>
+
+<script src="js/icp-builder.js"></script>
+
+<script src="js/apollo-sequences.js"></script>
+
 </body>
 </html>
